@@ -1,0 +1,85 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/tool-definitions.json",
+  "version": "1.0.0",
+  "name": "kite-portfolio-analysis",
+  "description": "AI-powered portfolio analysis for Zerodha Kite — benchmark comparison, Weinstein stage classification, concall AI summaries, and rebalancing recommendations.",
+  "tools": [
+    {
+      "name": "analyse_portfolio",
+      "description": "Full portfolio analysis: fetches live Kite holdings, computes returns vs benchmarks (Nifty 50/500/Smallcap 250/MF), classifies each holding by Weinstein stage using 50/150/200 MA, fetches concall AI summaries from trusted sources, and generates a rebalancing plan. Outputs a 4-tab HTML report to ~/Desktop.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "module": {
+            "type": "string",
+            "enum": ["performance", "stage", "both"],
+            "description": "Which analysis module to run. 'performance' = benchmark comparison only. 'stage' = stage classification + concall summaries only. 'both' = full review (default).",
+            "default": "both"
+          },
+          "period": {
+            "type": "string",
+            "enum": ["1M", "3M", "6M", "1Y", "all"],
+            "description": "Primary period for benchmark comparison. Defaults to 'all' (shows 1M/3M/6M/1Y simultaneously).",
+            "default": "all"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "portfolio_performance",
+      "description": "Compares portfolio returns vs Nifty 50, Nifty 500, Nifty Smallcap 250, Parag Parikh Flexi Cap (Direct), and Nippon India Small Cap (Direct) for 1M/3M/6M/1Y periods. Uses live Kite historical data. Outputs Tab 1 (Overview) and Tab 2 (Performance) of the HTML report.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from_date": {
+            "type": "string",
+            "description": "Start date for analysis in YYYY-MM-DD format. Defaults to today minus 365 days.",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "portfolio_stage_analysis",
+      "description": "Classifies each holding by Weinstein stage (1=Basing, 2=Uptrend, 3=Topping, 4=Downtrend) using 50/150/200-day moving averages computed from live Kite candle data. Also fetches earnings and concall summaries from whitelisted sources. Outputs Tab 3 (Stage Analysis) and Tab 4 (Rebalancing) of the HTML report.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "stocks": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional list of specific tradingsymbols to analyse (e.g. ['TATAELXSI', 'APOLLOHOSP']). Defaults to all holdings."
+          }
+        },
+        "required": []
+      }
+    }
+  ],
+  "configuration": {
+    "required_mcp_servers": ["kite"],
+    "benchmark_tokens": {
+      "NIFTY_50": 256265,
+      "NIFTY_500": 268041,
+      "NIFTY_SMLCAP_250": 267273
+    },
+    "trusted_data_sources": [
+      "screener.in",
+      "trendlyne.com",
+      "tickertape.in",
+      "moneycontrol.com",
+      "economictimes.indiatimes.com",
+      "businessstandard.com",
+      "livemint.com",
+      "bseindia.com",
+      "nseindia.com",
+      "valueresearchonline.com"
+    ],
+    "mf_benchmarks": {
+      "flexicap": "Parag Parikh Flexi Cap Fund — Direct Plan",
+      "smallcap": "Nippon India Small Cap Fund — Direct Plan"
+    },
+    "tracking_position_threshold": 0.002
+  }
+}

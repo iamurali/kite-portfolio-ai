@@ -1,0 +1,158 @@
+---
+description: >
+  Zerodha Kite portfolio analysis. Activate when the user asks to analyse
+  their stock portfolio, compare returns vs benchmarks, classify holdings
+  by Weinstein stage, summarise concall data, or generate a rebalancing plan.
+  Requires the Kite MCP server to be configured in .cursor/mcp.json.
+globs: []
+alwaysApply: false
+---
+
+# Kite Portfolio Analysis — Cursor Rules
+
+## When this rule activates
+- User says: "analyse my portfolio", "portfolio performance", "stage analysis",
+  "portfolio vs nifty", "how is my portfolio doing", "portfolio review",
+  "rebalancing plan", or types `/portfolio`
+
+## Required MCP tools
+The Kite MCP server must be connected. These tools are used:
+- `mcp__kite__login` — authenticate
+- `mcp__kite__get_profile` — user info
+- `mcp__kite__get_holdings` — live holdings with instrument_token
+- `mcp__kite__get_historical_data` — daily candles (interval="day")
+
+## Hardcoded benchmark tokens (do not search for these)
+- Nifty 50: `256265`
+- Nifty 500: `268041`
+- Nifty Smallcap 250: `267273`
+
+---
+
+## Step 0 — Always run first (parallel)
+
+Call both simultaneously:
+```
+mcp__kite__get_profile()
+mcp__kite__get_holdings()
+```
+
+From holdings, extract per stock:
+`tradingsymbol`, `exchange`, `instrument_token`, `quantity`, `average_price`,
+`last_price`, `pnl`, `day_change_percentage`
+
+Compute: `total_invested`, `total_current`, `total_pnl`, `total_return_pct`,
+`weight = current_value / total_current` per stock.
+
+**Tracking position:** if `weight ≤ 0.2%` → label TRACKING, never recommend EXIT based on size.
+
+---
+
+## Module 1 — Performance vs Benchmarks
+
+Fire all in one parallel batch:
+```
+# 3 benchmark indices + all stock candles + 4 MF WebSearches
+mcp__kite__get_historical_data(instrument_token=256265, from_date="YYYY-MM-DD 00:00:00", to_date="YYYY-MM-DD 23:59:59", interval="day")
+mcp__kite__get_historical_data(instrument_token=268041, from_date="...", to_date="...", interval="day")
+mcp__kite__get_historical_data(instrument_token=267273, from_date="...", to_date="...", interval="day")
+mcp__kite__get_historical_data(instrument_token=<from_holdings>, from_date="...", to_date="...", interval="day")
+# ... one call per holding
+
+WebSearch("Parag Parikh Flexi Cap Fund direct plan 1 year returns site:valueresearchonline.com")
+WebSearch("Nippon India Small Cap Fund direct plan 1 year returns site:valueresearchonline.com")
+```
+
+Use `from_date = today minus 365 days`. Extract only:
+`close_today`, `close_30d`, `close_90d`, `close_180d`, `close_365d`
+
+Compute period returns and weighted portfolio return. Compare vs all benchmarks.
+Mark ✅ where portfolio beats, ❌ where it lags.
+
+---
+
+## Module 2 — Stage & Earnings Analysis
+
+### Stage Classification (Weinstein)
+From each stock's candle data extract:
+`ma50`, `ma150`, `ma200`, `slope200`, `high_1y`, `low_1y`, `pct_from_high`
+
+| Stage | Condition |
+|---|---|
+| **Stage 2** ✅ | price > ma50 > ma150 > ma200, slope200 > 0 |
+| **Stage 1** 🔵 | price ≈ ma200 (±5%), slope200 ≈ 0 |
+| **Stage 3** ⚠️ | price choppy around ma200, slope200 flattening |
+| **Stage 4** 🔴 | price < ma50 < ma150 < ma200, slope200 < 0 |
+
+### Earnings + Concall (parallel WebSearches)
+One query per stock, fired simultaneously:
+```
+WebSearch("<STOCK_NAME> quarterly results concall Q4 FY26 OR Q3 FY26 management guidance site:screener.in OR site:trendlyne.com OR site:moneycontrol.com OR site:businessstandard.com")
+```
+
+**Trusted sources only:** `screener.in`, `trendlyne.com`, `tickertape.in`,
+`moneycontrol.com`, `economictimes.indiatimes.com`, `businessstandard.com`,
+`livemint.com`, `bseindia.com`, `nseindia.com`
+
+Per stock, produce:
+1. Company overview (8–10 pts: business, segments, moat, promoters, geography)
+2. One-line summary
+3. Guidance & Outlook (8–10 pts with specific numbers)
+4. Strategic Updates (8–10 pts)
+5. Earnings Triggers (8–10 pts)
+6. Risks (8–10 pts, management's own words)
+7. Key Q&A (8–10 exchanges)
+8. Management Consistency (8–10 points + ⭐ credibility score 1–5)
+9. Investor Verdict (3–5 sentences)
+
+### Action per stock
+| Action | When |
+|---|---|
+| TRACKING | weight ≤ 0.2% |
+| ✅ STRONG HOLD | Stage 2B, earnings accelerating |
+| HOLD | Stage 2, earnings steady |
+| WATCH | Stage 1 or mixed signals |
+| TRIM | Stage 3, earnings slowing, or weight >15% |
+| EXIT | Stage 4, thesis broken (NOT triggered by small size) |
+| ADD | Stage 2A fresh breakout + earnings confirmation |
+
+---
+
+## HTML Report Output
+
+Write a 4-tab dark-mode HTML report to `~/Desktop/portfolio-report-YYYY-MM-DD.html`.
+Write in **4 sequential Bash `cat >>` appends** (never one giant string).
+
+### Part 1 (`cat >`)
+Head + styles + Tab 1 (Overview: snapshot banner + stat grid + holdings table + allocation)
+
+### Part 2 (`cat >>`)
+Tab 2 (Performance: benchmark table + visual bars + stock returns + insights)
+
+### Part 3 (`cat >>`)
+Tab 3 (Stage Analysis: summary table + sidebar stock selector + all stock detail cards)
+
+### Part 4 (`cat >>`)
+Tab 4 (Rebalancing: priority list + reallocation table + health scores) + `</body></html>` + JS
+
+### UI Standards (never deviate)
+```
+--bg: #0f1117  --surface: #1a1d27  --surface2: #22263a  --border: #2e3250
+--text: #e2e8f0  --muted: #8892b0  --green: #22c55e  --red: #ef4444
+--yellow: #f59e0b  --blue: #60a5fa  --purple: #a78bfa  --accent: #6366f1
+```
+
+Stage badges: `.stage-2 { background:#14532d; color:#4ade80; border:1px solid #16a34a }`
+Action badges: `.action-hold { background:#1e3a5f; color:#93c5fd }`
+
+Tab navigation uses `showTab(name, btn)` — pass `this` explicitly, never use `event.target`.
+Stock detail panel uses `showStock(symbol)` with sidebar on desktop, dropdown on mobile.
+
+After writing: `open ~/Desktop/portfolio-report-YYYY-MM-DD.html`
+
+---
+
+## MF Cross-Verification Rule
+Fetch 2–3 sources per fund. Use `valueresearchonline.com` as primary.
+If sources diverge >1%: use valueresearchonline figure, mark ⚠️ Sources diverge.
+Always use Direct Plan figures only.

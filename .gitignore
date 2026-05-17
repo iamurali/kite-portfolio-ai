@@ -1,0 +1,33 @@
+# Personal / secrets
+.env
+*.key
+*.token
+.kite-session
+kite-session.json
+
+# AI tool local state
+.claude/settings.local.json
+*.local.json
+
+# Generated report files (user's actual portfolio data)
+portfolio-report-*.html
+Desktop/portfolio-report-*.html
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (if tooling added later)
+node_modules/
+npm-debug.log*
+
+# Python (if tooling added later)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
