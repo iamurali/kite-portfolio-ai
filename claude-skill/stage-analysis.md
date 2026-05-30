@@ -1,3 +1,12 @@
+---
+name: kite-portfolio
+subcommand: stage
+description: >
+  Module 2: Weinstein stage classification and 0-100 fundamental scoring for all holdings.
+  Use when the user says "/kite-portfolio:stage", "stage analysis", "stock stages", "earnings analysis",
+  "which stocks to trim", or "fundamental scoring". Writes stage/concall fields to JSON and opens report.
+---
+
 # Module 2 — Stage & Earnings Analysis
 
 ## MCP Tools used
@@ -270,7 +279,108 @@ If no data found after all whitelisted searches:
 
 ---
 
-## Step 6 — Action Per Stock
+## Step 6 — Fundamental Scoring (0–100) Per Stock
+
+Compute a score for every stock. This score drives action — **not stage alone**.
+
+### Scoring Rubric
+
+#### Priority 1: Business Quality (0–40 pts)
+
+**A. Earnings Growth Trajectory (0–10 pts)**
+- Last 4Q PAT YoY: all 4 accelerating → 10
+- 3 of 4 growing → 8
+- 2 of 4 growing → 5
+- Flat → 3
+- Declining 2+ quarters → 1
+- Declining 3+ quarters → 0
+
+**B. Management Credibility (0–10 pts)**
+- ⭐⭐⭐⭐⭐ (beats own guidance 3+ consecutive quarters) → 10
+- ⭐⭐⭐⭐ (mostly on track, minor misses) → 8
+- ⭐⭐⭐ (mixed — some hits, some misses) → 5
+- ⭐⭐ (frequent cuts, blame-shifting) → 2
+- ⭐ (chronic over-promise, narrative changes) → 0
+- No data available → 4 (neutral, no penalty)
+
+**C. Moat / Business Quality (0–10 pts)**
+From concall and search data, assess:
+- Strong moat (pricing power + switching costs + market share gaining) → 9–10
+- Moderate moat (1–2 moat dimensions, stable market share) → 5–8
+- Weak moat (commoditised, price-driven, market share losing) → 1–4
+- No moat (pure execution play, easy to replicate) → 0
+
+**D. Balance Sheet Health (0–10 pts)**
+- D/E < 0.3 AND FCF positive AND ROE > 20% → 10
+- D/E < 0.5 AND FCF positive AND ROE > 15% → 8
+- D/E < 1.0 AND FCF positive → 6
+- D/E < 1.0 BUT FCF negative → 4
+- D/E > 1.0 (non-financial) → 2
+- D/E > 2.0 OR interest coverage < 2x → 0
+
+#### Priority 2: Macro / Micro Context (0–30 pts)
+
+**E. Sector Tailwind (0–10 pts)**
+- Strong govt tailwind (PLI, capex cycle, policy push) + growing market → 9–10
+- Moderate tailwind (steady sector growth, no adverse policy) → 6–8
+- Neutral (no specific tailwind or headwind) → 4–5
+- Sector headwind (regulatory tightening, demand slowdown, commodity squeeze) → 1–3
+- Severe structural headwind (disruption, margin collapse, ban/policy reversal) → 0
+
+**F. Competitive Position (0–10 pts)**
+- Gaining market share + pricing power improving → 9–10
+- Stable market share + holding margins → 6–8
+- Slightly losing share but no major threat → 3–5
+- Losing share + margin compression → 1–2
+- Significant competitive threat or disruption → 0
+
+**G. Valuation vs History & Peers (0–10 pts)**
+- P/E > 40% below 3Y historical average AND below peer median → 9–10
+- P/E at or below 3Y historical average → 7–8
+- P/E 0–20% above 3Y historical average → 5–6
+- P/E 20–40% above 3Y historical average → 3–4
+- P/E > 40% above 3Y average OR > 60x on declining earnings → 0–2
+- No PE data available → 5 (neutral)
+
+#### Priority 3: Technical Stage (0–30 pts)
+
+**H. Weinstein Stage (0–30 pts)**
+- Stage 2B (established uptrend, all MAs rising) → 30
+- Stage 2A (fresh breakout from Stage 1, last 20 candles) → 25
+- Stage 1 (basing, flat 200MA, potential breakout) → 15
+- Stage 3 (topping, 200MA flattening/negative, choppy) → 8
+- Stage 4 (downtrend, all MAs declining) → 0
+- Insufficient data → 15 (neutral)
+
+---
+
+### Total Score → Action
+
+| Score | Action | Intent |
+|-------|--------|--------|
+| 85–100 | **STRONG ADD** | Excellent fundamentals + technicals confirm. Increase position. |
+| 70–84 | **ADD** | Strong fundamentals. Add on dips or Stage 2A breakout. |
+| 55–69 | **STRONG HOLD** | Solid business, neutral technicals. Maintain position. |
+| 40–54 | **HOLD** | Steady business. Watch for deterioration. No new buys. |
+| 30–39 | **WATCH** | Fundamentals weakening OR poor stage. Reduce exposure on bounce. |
+| 15–29 | **TRIM** | Earnings slowing + Stage 3 OR stretched valuation + Stage 3. Reduce 30–50%. |
+| 0–14 | **EXIT** | Thesis broken — not just technical decline. Business deteriorating. |
+
+**Overrides:**
+- TRACKING positions (weight ≤ 0.2%): never EXIT purely on size. Score still drives thesis assessment.
+- SME positions (`-SM`): cap action at TRIM even at low scores — liquidity impact cost is high.
+- Score 40–54 (HOLD) but Stage 4 + D/E > 1 → downgrade to WATCH minimum.
+- Score 70+ but Stage 4 → ADD/STRONG HOLD with note "await technical confirmation — do not add until Stage 1 or 2A base forms".
+
+### Show Score in Output
+
+For each stock display:
+```
+Fundamental Score: [TOTAL]/100
+  Business Quality: [A+B+C+D]/40  (Earnings:[X] · Mgmt:[X] · Moat:[X] · BS:[X])
+  Macro/Micro:      [E+F+G]/30    (Sector:[X] · Competitive:[X] · Valuation:[X])
+  Technical Stage:  [H]/30        (Stage [N])
+```
 
 ### Tracking Position Rule
 If a stock's current value is **≤ 0.2% of total portfolio value**, classify it as a **TRACKING POSITION**:
@@ -282,12 +392,13 @@ If a stock's current value is **≤ 0.2% of total portfolio value**, classify it
 | Action | CSS class | When |
 |---|---|---|
 | **TRACKING** | `action-tracking` | Weight ≤ 0.2% — monitoring position, not sized for impact |
-| **STRONG HOLD** | `action-strong` (use same style as `action-hold` but add ✅ prefix) | Stage 2B, earnings accelerating 2+ quarters, valuation reasonable |
-| **HOLD** | `action-hold` | Stage 2, earnings steady, no major flags |
-| **WATCH** | `action-watch` | Stage 1 (basing, waiting for breakout) or mixed signals |
-| **TRIM** | `action-trim` | Stage 3, earnings slowing, or weight >15%, or SME with low liquidity |
-| **EXIT** | `action-exit` | Stage 4, declining earnings, thesis broken — NOT triggered by small size alone |
-| **ADD** | `action-add` | Stage 2A fresh breakout + earnings confirmation |
+| **STRONG ADD** | `action-add` (bold green) | Score 85–100 |
+| **ADD** | `action-add` | Score 70–84 |
+| **STRONG HOLD** | `action-strong` (✅ prefix) | Score 55–69 |
+| **HOLD** | `action-hold` | Score 40–54 |
+| **WATCH** | `action-watch` | Score 30–39 |
+| **TRIM** | `action-trim` | Score 15–29 |
+| **EXIT** | `action-exit` | Score 0–14 — thesis broken, NOT just technical |
 
 ---
 
@@ -300,6 +411,12 @@ For each stock produce this card:
 [SYMBOL] ([EXCHANGE])  |  [STAGE BADGE]  |  Weight: X.X%
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Price: ₹X,XXX  |  Avg Buy: ₹X,XXX  |  P&L: +X.X%
+
+── FUNDAMENTAL SCORE ─────────────────────────
+[SCORE]/100  →  [ACTION]
+  Business Quality [A+B+C+D]/40: Earnings [X] · Mgmt [X] · Moat [X] · BalSheet [X]
+  Macro/Micro      [E+F+G]/30:   Sector [X] · Competitive [X] · Valuation [X]
+  Technical Stage  [H]/30:       Stage [N]
 
 ── TECHNICAL ─────────────────────────────────
 50MA ₹X,XXX | 150MA ₹X,XXX | 200MA ₹X,XXX | Slope: Rising/Falling
@@ -319,7 +436,8 @@ PE: Xx | D/E: X.Xx
 [Risk tags]
 
 ── ACTION ────────────────────────────────────
-[ACTION] — [1-line rationale with specific price levels]
+[ACTION BADGE] [SCORE/100] — [1-line rationale with specific price levels]
+Reason: [Why this score — key drivers in Business Quality / Macro / Stage]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -327,10 +445,14 @@ PE: Xx | D/E: X.Xx
 
 ## Step 8 — Portfolio Stage Summary Table
 
-| Stock | Stage | Weight | Action | Earnings trend | Mgmt ⭐ | Key Risk |
-|---|---|---|---|---|---|---|
+| Stock | Stage | Weight | Score | Action | Earnings trend | Mgmt ⭐ | Valuation | Key Risk |
+|---|---|---|---|---|---|---|---|---|
 
 **Earnings trend** column values: `↑↑ Accelerating`, `↑ Growing`, `→ Flat`, `↓ Slowing`, `↓↓ Declining` — based on PAT YoY growth over last 2 quarters.
+
+**Score** column: show as `[N]/100` with colour — green if ≥70, amber if 40–69, red if <40.
+
+**Valuation** column: `Cheap` / `Fair` / `Rich` — based on P/E vs 3Y historical average.
 
 Footer — show separately, do NOT combine Stage 1 and Stage 2:
 `Stage 1 Capital: XX% 🔵 | Stage 2 Capital: XX% ✅ | Stage 3 Capital: XX% ⚠️ | Stage 4 Capital: XX% 🔴`
@@ -339,47 +461,85 @@ Footer — show separately, do NOT combine Stage 1 and Stage 2:
 
 ## Step 9 — Rebalancing Priority List
 
+Prioritise by **fundamental score**, not stage alone. A stock in Stage 4 with score 72 gets WATCH (not EXIT). A stock in Stage 2 with score 18 gets TRIM/EXIT.
+
 ```
-HIGH PRIORITY (act within 1-2 weeks):
-1. [STOCK] — [reason: stage + earnings + weight]
+HIGH PRIORITY — EXIT / TRIM (score <30, thesis deteriorating):
+1. [STOCK] [Score: X/100] — [reason: which fundamentals are broken]
+   Current: X% → Target: Y% (reduce by ₹Z)
 
-MEDIUM PRIORITY (review this month):
-2. [STOCK] — [reason]
+MEDIUM PRIORITY — WATCH / REDUCE (score 30–54, mixed signals):
+2. [STOCK] [Score: X/100] — [reason]
+   Await: [specific catalyst or condition to re-assess]
 
-LOW PRIORITY (monitor):
-3. [STOCK] — [reason]
+LOW PRIORITY — HOLD / STRONG HOLD (score 55–69, steady):
+3. [STOCK] [Score: X/100] — [reason]
+   Next check: [quarterly result date or specific monitorable]
 
-POTENTIAL ADDS (if capital freed up):
-- [STOCK] — [condition to add e.g. "on dip to 50MA"]
+STRONG ADDS (score 70+, deploy capital here):
+- [STOCK] [Score: X/100] — [reason: what's driving high score]
+  Entry zone: [price level] | Add zone: [price range]
+  Capital freed from exits → redeploy here
 ```
+
+**Capital redeployment map:** List stocks to exit/trim → total capital freed → which STRONG ADD / ADD stocks to increase.
+
+Suggested target weights for the rebalancing table:
+- EXIT stocks → target 0%
+- TRIM stocks → target current_weight / 2 (rounded to nearest 0.5%)
+- WATCH stocks → maintain but no new buys
+- HOLD / STRONG HOLD → maintain current weight
+- ADD → suggest +1–2% if capital available
+- STRONG ADD → suggest +3–5% (up to max single-stock weight of 15%)
+- TRACKING → leave as-is
 
 ---
 
-## Step 10 — Generate HTML Report
+## Step 10 — Write JSON Output
 
-Follow `html-report.md` chunked write pattern and HTML assembly rules from `skill.md`.
+**No HTML generation.** Write or merge into the JSON file following `docs/portfolio-data-schema.md`.
 
-**If full review (Module 1 already wrote Parts 1–2):** append Parts 3 and 4 only.
-**If Module 2 alone:** write all 4 parts; Tab 2 = placeholder (see skill.md HTML Assembly section).
+Populate / overwrite these JSON sections from Module 2 data:
+- `meta.modules_run` — set to `["performance","stage"]` if Module 1 ran first, else `["stage"]`
+- `portfolio.stage1_pct`, `stage2_pct`, `stage3_pct`, `stage4_pct`, `atrisk_pct`
+- `portfolio.accel_pct` — % of portfolio weight where earnings_trend = "accelerating"
+- `portfolio.avg_mgmt_stars` — average of mgmt_stars across holdings (1dp)
+- `portfolio.top_priority_actions` — top 3 items from rebalancing priority list
+- Per `holdings[]` entry: `technical`, `fundamental_score`, `earnings`, `risk_flags`, `concall`, `action`
 
-Suggested weights for the Rebalancing tab:
-- EXIT stocks → target 0%
-- TRIM stocks → target current_weight / 2 (rounded to nearest 0.5%)
-- STRONG HOLD / HOLD → maintain current weight
-- ADD → suggest +2–3% if capital is available from exits/trims
-- TRACKING → leave as-is
-- WATCH → leave as-is until breakout confirmed
+**If full review (Module 1 already wrote the JSON):** read existing file, merge Module 2 fields, rewrite.
+**If Module 2 alone:** write the full JSON; omit `returns`, `benchmarks` (leave absent, not null).
 
-Save and open:
+```bash
+mkdir -p ~/.portfolio/data
+
+# Read existing JSON if present, merge, then write atomically
+# If starting fresh (Module 2 alone), write complete JSON without returns/benchmarks
+
+cat > ~/.portfolio/data/portfolio-$(date +%Y-%m-%d).tmp.json << 'EOF'
+{...complete merged JSON with all available fields...}
+EOF
+mv ~/.portfolio/data/portfolio-$(date +%Y-%m-%d).tmp.json \
+   ~/.portfolio/data/portfolio-$(date +%Y-%m-%d).json
+
+ln -sf ~/.portfolio/data/portfolio-$(date +%Y-%m-%d).json \
+        ~/.portfolio/data/latest.json
 ```
-Bash: open ~/Desktop/portfolio-report-YYYY-MM-DD.html
+
+**Token budget: target ≤ 2,000 tokens for the JSON write** (compact output, no extra whitespace).
+
+After writing, open the report:
+```bash
+curl -s --max-time 1 http://localhost:7891/health > /dev/null 2>&1 && open http://localhost:7891/report || open ~/Desktop/portfolio-report-$(date +%Y-%m-%d).html
 ```
 
-In chat show only: stage summary table + top 3 rebalancing actions.
+In chat show only: stage summary table + top 3 rebalancing actions (score, action, 1-line reason).
 
 ---
 
 ## Notes
-- Stage is technical only — always cross-check with earnings
-- SME stocks (`-SM`) have wide spreads — factor in impact cost when trimming
-- Stage analysis requires at least 200 trading days of data (~10 months). If a stock has less history, note it and skip MA-based classification
+- **Fundamentals drive action, technicals drive timing.** A quality business in Stage 4 is a WATCH (buy the dip), not an EXIT. A poor business in Stage 2 near 52W high is a TRIM.
+- **52W high proximity is NOT a sell signal.** A stock near 52W high with accelerating earnings and expanding moat is a STRONG HOLD or ADD on dips. Trim only if valuation is >40% above 3Y average AND score drops below 55.
+- SME stocks (`-SM`) have wide spreads — factor in impact cost when trimming. Cap action at TRIM even with low score.
+- Stage analysis requires at least 200 trading days of data (~10 months). If less history, note it and skip MA-based classification; use score = 15 for Technical component.
+- When fundamental data is unavailable (no search results), apply conservative defaults: Earnings=3, Mgmt=4, Moat=4, BS=5, Sector=4, Competitive=4, Valuation=5. Note "Insufficient data — score based on conservative defaults."

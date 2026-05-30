@@ -1,0 +1,554 @@
+{
+  "meta": {
+    "generated_at": "2026-05-30T12:00:00Z",
+    "report_date": "2026-05-30",
+    "user_name": "Demo User",
+    "schema_version": "2.0",
+    "modules_run": ["performance", "stage"]
+  },
+  "portfolio": {
+    "total_invested": 1079456,
+    "total_current": 1081461,
+    "total_pnl": 2005,
+    "total_return_pct": 0.19,
+    "day_change_abs": -875,
+    "day_change_pct": -0.08,
+    "num_stocks": 4,
+    "stage1_pct": 0.0,
+    "stage2_pct": 52.7,
+    "stage3_pct": 18.5,
+    "stage4_pct": 28.8,
+    "atrisk_pct": 47.3,
+    "accel_pct": 18.5,
+    "avg_mgmt_stars": 3.5,
+    "top_priority_actions": [
+      { "symbol": "ZAGGLE", "action": "EXIT", "reason": "Stage 4 · -20% from avg buy · Mgmt credibility broken. Exit all 240 shares. Free up ~50K." },
+      { "symbol": "FLYSBS-SM", "action": "TRIM", "reason": "15.3% in SME — excessive. Stage 3/4. Sell 200 shares in small lots (low liquidity)." },
+      { "symbol": "BAJAJHLDNG", "action": "WATCH", "reason": "Stage 3 · Below 200MA · Structural HoldCo discount. Trim 50% if no recovery above 11,800 in 4-6 weeks." }
+    ]
+  },
+  "benchmarks": {
+    "nifty50":    { "1m": 2.1, "3m": -1.2, "6m": 4.5, "1y": 12.3 },
+    "nifty500":   { "1m": 2.4, "3m": -0.8, "6m": 5.1, "1y": 14.1 },
+    "smlcap250":  { "1m": 3.1, "3m":  1.2, "6m": 7.2, "1y": 18.4 },
+    "flexicap_mf": { "1m": 1.9, "3m": -1.0, "6m": 4.2, "1y": 13.7, "source": "Parag Parikh Flexi Cap Direct Growth", "verified": true, "verify_note": "screener.in and valueresearchonline.com agree within 0.3%" },
+    "smallcap_mf": { "1m": 2.8, "3m":  0.9, "6m": 6.1, "1y": 16.2, "source": "Nippon India Small Cap Direct Growth", "verified": true, "verify_note": "2 sources agree within 0.2%" },
+    "portfolio":  { "1m": -0.8, "3m": -3.1, "6m": 1.2, "1y": 11.4 }
+  },
+  "holdings": [
+    {
+      "symbol": "NETWEB",
+      "exchange": "BSE",
+      "instrument_token": 3906049,
+      "qty": 52,
+      "avg_buy": 2458,
+      "ltp": 3841,
+      "cost_value": 127816,
+      "current_value": 199732,
+      "pnl": 71916,
+      "return_pct": 56.3,
+      "day_change_pct": -1.73,
+      "weight": 18.5,
+      "tracking": false,
+      "is_sme": false,
+      "color": "#6366f1",
+      "returns": {
+        "1m": 3.2, "3m": -5.1, "6m": 18.4, "1y": 72.6,
+        "since_buy": 56.3,
+        "vs_nifty50": { "1m": true, "3m": false, "6m": true, "1y": true }
+      },
+      "technical": {
+        "stage": "2B",
+        "stage_label": "Stage 2B",
+        "ma50": 3620,
+        "ma150": 3100,
+        "ma200": 2850,
+        "ma200_approx": false,
+        "slope200": 45.2,
+        "slope_direction": "rising",
+        "high_1y": 4200,
+        "low_1y": 1950,
+        "pct_from_high": -8.5,
+        "pct_above_200ma": 34.8,
+        "pct_from_low": 97.0
+      },
+      "fundamental_score": {
+        "total": 82,
+        "action": "STRONG HOLD",
+        "action_css": "action-strong",
+        "earnings": 8,
+        "mgmt": 10,
+        "moat": 8,
+        "balance_sheet": 9,
+        "sector": 9,
+        "competitive": 8,
+        "valuation": 0,
+        "stage_score": 30
+      },
+      "earnings": {
+        "ttm_pe": 42,
+        "de_ratio": 0.0,
+        "roe": 28.4,
+        "quarters": [
+          { "label": "Q1FY25", "revenue": 280, "pat": 32, "yoy_rev": null, "yoy_pat": null },
+          { "label": "Q2FY25", "revenue": 310, "pat": 38, "yoy_rev": 18.2, "yoy_pat": 21.4 },
+          { "label": "Q3FY25", "revenue": 375, "pat": 45, "yoy_rev": 24.1, "yoy_pat": 28.6 },
+          { "label": "Q4FY25", "revenue": 420, "pat": 52, "yoy_rev": 34.2, "yoy_pat": 40.1 }
+        ],
+        "earnings_trend": "accelerating"
+      },
+      "risk_flags": [
+        { "type": "valuation",    "label": "High PE 42x",     "class": "risk" },
+        { "type": "concentration","label": "Client conc 45%", "class": "risk" },
+        { "type": "debt_free",    "label": "Debt-free",       "class": "ok" },
+        { "type": "ok_stage",     "label": "Stage 2B",        "class": "ok" }
+      ],
+      "concall": {
+        "source_url": "https://trendlyne.com/equity/concall/NETWEB/",
+        "quarter": "Q4 FY25",
+        "company_overview": [
+          "Designs and manufactures high-performance computing servers, workstations, and storage systems for enterprise and govt clients",
+          "Revenue model: project-based B2B supply, with servicing and AMC as recurring stream (~10% of revenue)",
+          "Key segments: HPC servers (55%), enterprise storage (25%), workstations (20%)",
+          "Market position: #2 domestic server OEM by revenue; competes with Dell, HPE on price",
+          "Promoter: Sanjay Lodha group, ~52% promoter holding, no pledge",
+          "Geography: 95% domestic, 5% exports (targeting 15% exports in 3 years)",
+          "Key clients: BFSI, defence PSUs, central govt ministries — top 3 = 45% revenue",
+          "Regulatory: empanelled with MeitY for govt procurement — protects from direct foreign competition",
+          "Revenue CAGR 3Y: ~65%; PAT CAGR 3Y: ~80% — highest growth phase in company history",
+          "Moat: MeitY empanelment + govt procurement preference for domestic OEMs; switching cost low on product but high on govt relationship"
+        ],
+        "one_liner": "Data centre demand driving 40%+ growth with strong order book visibility into FY26.",
+        "guidance": [
+          "Revenue FY26: 1800 Cr guided (~40% growth on FY25 base of ~1280 Cr)",
+          "EBITDA margin: 14-15% maintained (FY25 delivered 14.2%)",
+          "Order book: 1800 Cr executable over 12 months as of Q4 call",
+          "Capex FY26: 80-100 Cr for facility expansion at Nalagarh",
+          "Hyperscale segment launch: first revenue expected H2 FY26",
+          "Export target: 150-200 Cr in FY26 (currently negligible)",
+          "No dividend guidance; reinvesting all FCF into capacity",
+          "Headcount: adding 200 engineers in FY26 for GPU server assembly",
+          "Working capital target: maintain ~90 days (currently 92 days)",
+          "Milestone: GPU server assembly certification from 2 global OEMs by Q2 FY26"
+        ],
+        "strategic_updates": [
+          "Entering hyperscale data centre segment — targeting cloud providers and large enterprises",
+          "JV with Taiwanese ODM for GPU server assembly under MeitY procurement",
+          "Capacity expansion at Nalagarh to 2x current capacity by Q3 FY26",
+          "New product: liquid cooling solutions for high-density AI compute racks",
+          "Won 3 new defence PSU contracts worth ~280 Cr in Q4",
+          "Targeting US export certification for workstations (filing by Q1 FY26)",
+          "Cost optimisation: component localisation reducing BOM cost by 8%",
+          "New CTO hired from global OEM — first external senior hire in 5 years"
+        ],
+        "earnings_triggers": [
+          "First hyperscale order win above 200 Cr — would confirm addressable market expansion",
+          "Capacity utilisation crossing 80% — signals operating leverage inflection",
+          "Export revenue hitting 5% of total — de-risks govt concentration",
+          "GPU assembly line certification — unlocks AI infra demand",
+          "Any index inclusion (Nifty Midcap 150 threshold at current mcap)",
+          "Analyst coverage initiation by top brokerage (currently covered by 3 small brokers only)",
+          "Promoter open market buying — last bought in Oct 2024",
+          "Q result beat vs street estimates by more than 10%",
+          "Margin expansion above 15% EBITDA — not yet guided",
+          "Strategic partner announcement for overseas distribution"
+        ],
+        "risks": [
+          "Dependent on govt and BFSI spending — both can delay in election year or budget cuts",
+          "Customer concentration: top 3 = 45% revenue — single cancellation hits badly",
+          "Component lead times elevated for high-end GPUs (NVIDIA allocations constrained)",
+          "No pricing power vs Dell/HPE in open commercial market — wins only on govt preference",
+          "Execution risk: hyperscale is new segment — management has no prior track record here",
+          "FX risk if imports rise significantly (currently 40% of COGS imported)",
+          "Debt-free now but capex expansion may require external funding in FY27",
+          "Valuation (42x PE) — any demand slowdown compresses multiple sharply",
+          "No promoter pledge but promoter selling 2% stake in QIP diluted FY25",
+          "Regulatory: MeitY empanelment can be revoked if compliance lapses"
+        ],
+        "qa": [
+          { "q": "Can margins sustain at 14%+ with hyperscale?", "a": "Yes, hyperscale margins are higher — we target 16-17% EBITDA on those contracts" },
+          { "q": "Order book concentration — any single order above 20% of backlog?", "a": "No, largest single order is 12% of current backlog" },
+          { "q": "Risk of order cancellation in backlog?", "a": "All backed by purchase orders with penalties, no historical cancellations" },
+          { "q": "GPU availability — can you meet FY26 targets?", "a": "We have allocation commitments from 2 distributors covering 70% of our FY26 GPU needs" },
+          { "q": "Why not paying dividend given zero debt?", "a": "We see 3-4x better return reinvesting in capacity versus paying dividend at current growth stage" },
+          { "q": "What is the hyperscale pipeline size?", "a": "Management deflected — said pipeline is robust but would not quantify. Watch for this." }
+        ],
+        "consistency": [
+          { "promise": "Q3: guided 400 Cr Q4 revenue", "actual": "420 Cr delivered", "status": "beat" },
+          { "promise": "FY25 EBITDA margin 13-14%", "actual": "14.2% delivered", "status": "beat" },
+          { "promise": "Q2: order book 1400 Cr by Q4", "actual": "1800 Cr — exceeded", "status": "beat" },
+          { "promise": "FY25 capex 60-70 Cr", "actual": "58 Cr spent — slight underspend on timing", "status": "met" }
+        ],
+        "mgmt_stars": 5,
+        "credibility_label": "Beats own guidance consistently — 4 straight quarter beats",
+        "investor_verdict": "Management is conservative and consistently delivers or beats guidance. Business is in structural tailwind from AI infra and data centre buildout in India. Key risk is valuation at 42x PE — any demand slowdown or guidance cut would compress the multiple sharply. Hyperscale ambition is exciting but unproven — track Q1 FY26 for first data points. Would trust this team with capital."
+      },
+      "action": {
+        "label": "STRONG HOLD",
+        "css_class": "action-strong",
+        "priority": "low",
+        "rationale": "Strong Stage 2B, management credible (5 stars), earnings accelerating 4 consecutive quarters. Add only on 8-10% dip to 50MA (3620). Do not chase at 52W high proximity.",
+        "suggested_weight": 18.5,
+        "target_weight": 18.5
+      }
+    },
+    {
+      "symbol": "KIRLOSENG",
+      "exchange": "NSE",
+      "instrument_token": 21333,
+      "qty": 145,
+      "avg_buy": 548,
+      "ltp": 1168,
+      "cost_value": 79460,
+      "current_value": 169360,
+      "pnl": 89900,
+      "return_pct": 113.1,
+      "day_change_pct": 0.42,
+      "weight": 15.7,
+      "tracking": false,
+      "is_sme": false,
+      "color": "#22c55e",
+      "returns": {
+        "1m": 5.1, "3m": 8.2, "6m": 22.4, "1y": 113.1,
+        "since_buy": 113.1,
+        "vs_nifty50": { "1m": true, "3m": true, "6m": true, "1y": true }
+      },
+      "technical": {
+        "stage": "2B",
+        "stage_label": "Stage 2B",
+        "ma50": 1090,
+        "ma150": 940,
+        "ma200": 820,
+        "ma200_approx": false,
+        "slope200": 28.4,
+        "slope_direction": "rising",
+        "high_1y": 1175,
+        "low_1y": 520,
+        "pct_from_high": -0.6,
+        "pct_above_200ma": 42.4,
+        "pct_from_low": 124.6
+      },
+      "fundamental_score": {
+        "total": 88,
+        "action": "STRONG ADD",
+        "action_css": "action-add",
+        "earnings": 9,
+        "mgmt": 9,
+        "moat": 9,
+        "balance_sheet": 10,
+        "sector": 9,
+        "competitive": 9,
+        "valuation": 3,
+        "stage_score": 30
+      },
+      "earnings": {
+        "ttm_pe": 28,
+        "de_ratio": 0.1,
+        "roe": 22.1,
+        "quarters": [
+          { "label": "Q1FY25", "revenue": 810, "pat": 62, "yoy_rev": 12.4, "yoy_pat": 18.2 },
+          { "label": "Q2FY25", "revenue": 890, "pat": 72, "yoy_rev": 14.1, "yoy_pat": 22.4 },
+          { "label": "Q3FY25", "revenue": 960, "pat": 81, "yoy_rev": 16.8, "yoy_pat": 28.6 },
+          { "label": "Q4FY25", "revenue": 1050,"pat": 94, "yoy_rev": 19.2, "yoy_pat": 34.2 }
+        ],
+        "earnings_trend": "accelerating"
+      },
+      "risk_flags": [
+        { "type": "near_high", "label": "Near 52W high -0.6%", "class": "risk" },
+        { "type": "ok_stage",  "label": "Stage 2B",            "class": "ok" },
+        { "type": "debt_free", "label": "Near debt-free",      "class": "ok" }
+      ],
+      "concall": {
+        "source_url": "https://screener.in/company/KIRLOSENG/",
+        "quarter": "Q4 FY25",
+        "company_overview": [
+          "Kirloskar Engines India manufactures diesel and gas engines for industrial, marine, and power generation applications",
+          "Revenue model: product sales (70%) + spares and services (30% — high margin recurring)",
+          "Market leader in medium-speed diesel engines in India with ~40% market share",
+          "Strong promoter family (Kirloskar group), ~55% holding, zero pledge",
+          "Benefits from PLI for capital goods and defence indigenisation push",
+          "3Y revenue CAGR ~15%, PAT CAGR ~25% — margin expansion phase"
+        ],
+        "one_liner": "Export order wins accelerating with industrial recovery — margin expansion from spares mix continuing.",
+        "guidance": [
+          "Revenue FY26: 4200-4500 Cr (15-18% growth)",
+          "EBITDA margin: 14-15% target (vs 13.2% in FY25)",
+          "Export revenue: 800 Cr target (vs 620 Cr FY25)",
+          "Capex: 150-180 Cr for capacity expansion"
+        ],
+        "strategic_updates": [
+          "New gas engine product line for CNG gensets — addresses energy transition",
+          "Defence order pipeline: 3 active tenders for naval vessels",
+          "Spares distribution network expanded to 180 service centres (from 140)"
+        ],
+        "earnings_triggers": [
+          "Defence order win above 300 Cr",
+          "Gas engine product launch revenue hitting 200 Cr",
+          "Margin crossing 15% EBITDA — operating leverage from utilisation",
+          "Index inclusion in Nifty 500 (close to threshold)"
+        ],
+        "risks": [
+          "Diesel engine demand at risk from EV/electric transition over 5-10 year horizon",
+          "Input cost (steel, copper) exposure if commodity cycle turns",
+          "Export growth depends on global capex — can slow in recession",
+          "Customer concentration in industrial/infra — govt spending slowdown risk"
+        ],
+        "qa": [
+          { "q": "EV risk to diesel engine business?", "a": "Diesel engines have 10+ year runway in industrial and defence — no risk in our planning horizon" },
+          { "q": "When does gas engine business become material?", "a": "Expect 15% of revenue by FY27 — currently 5%" }
+        ],
+        "consistency": [
+          { "promise": "FY25 EBITDA margin 13%+", "actual": "13.2% delivered", "status": "met" },
+          { "promise": "Export 600 Cr FY25", "actual": "620 Cr — slight beat", "status": "beat" }
+        ],
+        "mgmt_stars": 4,
+        "credibility_label": "Reliable — mostly on track with conservative guidance",
+        "investor_verdict": "Kirloskar Engines is a quality compounder in the industrial capex cycle. Strong moat (market share, spares network), improving margins, and export growth give multiple expansion runway. Near 52W high but earnings justify current valuation at 28x PE — below the sector mean of 32x. Best momentum stock in the portfolio."
+      },
+      "action": {
+        "label": "STRONG ADD",
+        "css_class": "action-add",
+        "priority": "add",
+        "rationale": "Best momentum + fundamentals combo in portfolio. Score 88/100. Add on any 5-8% dip to 50MA (1090). Maximum weight 20% given strong thesis.",
+        "suggested_weight": 15.7,
+        "target_weight": 20.0
+      }
+    },
+    {
+      "symbol": "BAJAJHLDNG",
+      "exchange": "NSE",
+      "instrument_token": 317441,
+      "qty": 8,
+      "avg_buy": 9820,
+      "ltp": 11240,
+      "cost_value": 78560,
+      "current_value": 89920,
+      "pnl": 11360,
+      "return_pct": 14.5,
+      "day_change_pct": -0.81,
+      "weight": 8.3,
+      "tracking": false,
+      "is_sme": false,
+      "color": "#f59e0b",
+      "returns": {
+        "1m": -3.2, "3m": -8.1, "6m": -12.4, "1y": 8.2,
+        "since_buy": 14.5,
+        "vs_nifty50": { "1m": false, "3m": false, "6m": false, "1y": false }
+      },
+      "technical": {
+        "stage": "3",
+        "stage_label": "Stage 3",
+        "ma50": 11480,
+        "ma150": 11620,
+        "ma200": 11380,
+        "ma200_approx": false,
+        "slope200": -12.4,
+        "slope_direction": "falling",
+        "high_1y": 13200,
+        "low_1y": 10400,
+        "pct_from_high": -14.8,
+        "pct_above_200ma": -1.2,
+        "pct_from_low": 8.1
+      },
+      "fundamental_score": {
+        "total": 52,
+        "action": "WATCH",
+        "action_css": "action-watch",
+        "earnings": 6,
+        "mgmt": 7,
+        "moat": 8,
+        "balance_sheet": 10,
+        "sector": 5,
+        "competitive": 6,
+        "valuation": 2,
+        "stage_score": 8
+      },
+      "earnings": {
+        "ttm_pe": 22,
+        "de_ratio": 0.0,
+        "roe": 14.2,
+        "quarters": [
+          { "label": "Q1FY25", "revenue": 580, "pat": 1820, "yoy_rev": 8.2,  "yoy_pat": 12.1 },
+          { "label": "Q2FY25", "revenue": 610, "pat": 1940, "yoy_rev": 6.1,  "yoy_pat": 8.4 },
+          { "label": "Q3FY25", "revenue": 590, "pat": 1780, "yoy_rev": 3.2,  "yoy_pat": 2.1 },
+          { "label": "Q4FY25", "revenue": 575, "pat": 1710, "yoy_rev": -0.9, "yoy_pat": -4.2 }
+        ],
+        "earnings_trend": "slowing"
+      },
+      "risk_flags": [
+        { "type": "stage",      "label": "Stage 3 topping",     "class": "risk" },
+        { "type": "valuation",  "label": "HoldCo discount 35%", "class": "risk" },
+        { "type": "debt_free",  "label": "Zero debt",           "class": "ok" },
+        { "type": "ok_stage",   "label": "Strong subsidiaries", "class": "ok" }
+      ],
+      "concall": {
+        "source_url": "https://screener.in/company/BAJAJHLDNG/",
+        "quarter": "Q4 FY25",
+        "company_overview": [
+          "Bajaj Holdings is a NBFC investment company holding stakes in Bajaj Finance, Bajaj Finserv, and other Bajaj group companies",
+          "Not an operating company — revenue = dividend income + investment gains from subsidiaries",
+          "Structural HoldCo discount: market cap is ~35% below NAV of listed holdings",
+          "Promoter: Rahul Bajaj family, ~55% holding, zero pledge",
+          "Key holding: Bajaj Finance (33% stake, most valuable); Bajaj Finserv (39% stake)"
+        ],
+        "one_liner": "HoldCo discount widened as Bajaj Finance growth concerns weigh — no near-term catalyst to close the gap.",
+        "guidance": [
+          "No operating guidance — holding company structure",
+          "NAV as of Q4: ~17,200 per share (vs CMP 11,240 = 35% discount)",
+          "Dividend: maintained at 160 per share"
+        ],
+        "strategic_updates": [
+          "No new strategic moves announced",
+          "Continuing to hold core stakes — no monetisation plans mentioned"
+        ],
+        "earnings_triggers": [
+          "Bajaj Finance re-rating if RBI removes regulatory embargo",
+          "HoldCo discount narrowing if market re-rates the structure",
+          "Special dividend or buyback announcement"
+        ],
+        "risks": [
+          "Bajaj Finance faces regulatory headwinds (RBI scrutiny on unsecured lending)",
+          "HoldCo discount can persist or widen in risk-off markets",
+          "No operating leverage — pure pass-through of subsidiary performance",
+          "NBFC sector facing margin compression from rising cost of funds"
+        ],
+        "qa": [
+          { "q": "Any plans to close the HoldCo discount?", "a": "Management acknowledged the discount but said no immediate structural change planned" },
+          { "q": "Bajaj Finance growth outlook?", "a": "Redirected to Bajaj Finance's own management commentary" }
+        ],
+        "consistency": [
+          { "promise": "Maintain 160 dividend", "actual": "160 maintained", "status": "met" }
+        ],
+        "mgmt_stars": 3,
+        "credibility_label": "Limited — holding company with minimal direct management actions",
+        "investor_verdict": "Bajaj Holdings is a quality asset at a structural discount but with no near-term catalyst to close it. The Stage 3 technical setup and slowing subsidiary earnings (Bajaj Finance headwinds) make this a watch-and-wait situation. Trim 50% if price fails to recover above 11,800 in 4-6 weeks. The thesis is intact long-term but position sizing should reflect the technical risk."
+      },
+      "action": {
+        "label": "WATCH",
+        "css_class": "action-watch",
+        "priority": "medium",
+        "rationale": "Score 52/100 — solid business but Stage 3 and slowing earnings. Hold current position. Trim 50% (to ~4%) if no recovery above 11,800 by end of June 2026.",
+        "suggested_weight": 8.3,
+        "target_weight": 8.3
+      }
+    },
+    {
+      "symbol": "ZAGGLE",
+      "exchange": "NSE",
+      "instrument_token": 5552641,
+      "qty": 240,
+      "avg_buy": 210,
+      "ltp": 168,
+      "cost_value": 50400,
+      "current_value": 40320,
+      "pnl": -10080,
+      "return_pct": -20.0,
+      "day_change_pct": -7.25,
+      "weight": 3.7,
+      "tracking": false,
+      "is_sme": false,
+      "color": "#ef4444",
+      "returns": {
+        "1m": -18.2, "3m": -32.4, "6m": -41.2, "1y": -38.6,
+        "since_buy": -20.0,
+        "vs_nifty50": { "1m": false, "3m": false, "6m": false, "1y": false }
+      },
+      "technical": {
+        "stage": "4",
+        "stage_label": "Stage 4",
+        "ma50": 195,
+        "ma150": 228,
+        "ma200": 248,
+        "ma200_approx": false,
+        "slope200": -18.2,
+        "slope_direction": "falling",
+        "high_1y": 348,
+        "low_1y": 158,
+        "pct_from_high": -51.7,
+        "pct_above_200ma": -32.3,
+        "pct_from_low": 6.3
+      },
+      "fundamental_score": {
+        "total": 12,
+        "action": "EXIT",
+        "action_css": "action-exit",
+        "earnings": 0,
+        "mgmt": 1,
+        "moat": 2,
+        "balance_sheet": 4,
+        "sector": 3,
+        "competitive": 0,
+        "valuation": 2,
+        "stage_score": 0
+      },
+      "earnings": {
+        "ttm_pe": null,
+        "de_ratio": 0.2,
+        "roe": 2.1,
+        "quarters": [
+          { "label": "Q1FY25", "revenue": 242, "pat": 18, "yoy_rev": 12.4, "yoy_pat": 8.2 },
+          { "label": "Q2FY25", "revenue": 228, "pat": 12, "yoy_rev": 4.1,  "yoy_pat": -18.4 },
+          { "label": "Q3FY25", "revenue": 198, "pat": 4,  "yoy_rev": -8.2, "yoy_pat": -72.1 },
+          { "label": "Q4FY25", "revenue": 182, "pat": -8, "yoy_rev": -18.4,"yoy_pat": null }
+        ],
+        "earnings_trend": "declining"
+      },
+      "risk_flags": [
+        { "type": "stage",            "label": "Stage 4 downtrend",      "class": "risk" },
+        { "type": "earnings_momentum","label": "PAT loss in Q4",          "class": "risk" },
+        { "type": "near_low",         "label": "Near 52W low +6.3%",      "class": "risk" },
+        { "type": "valuation",        "label": "Thesis broken",           "class": "risk" }
+      ],
+      "concall": {
+        "source_url": "https://trendlyne.com/equity/concall/ZAGGLE/",
+        "quarter": "Q4 FY25",
+        "company_overview": [
+          "Zaggle is a SaaS fintech providing spend management software and prepaid card solutions for corporates",
+          "Revenue model: SaaS subscription fees + card transaction interchange fees",
+          "Competes with Happay, EnKash, and global players like Expensify",
+          "Promoter stake low (~28%) — key risk for governance",
+          "Revenue growth has reversed to decline as enterprise customers churn"
+        ],
+        "one_liner": "Customer churn accelerating and management has changed revenue guidance three times — credibility broken.",
+        "guidance": [
+          "New guidance: breakeven by Q2 FY26 (third revision downward)",
+          "No revenue growth guidance provided — significant negative signal",
+          "Cost reduction plan announced — cutting 30% of headcount"
+        ],
+        "strategic_updates": [
+          "Pivoting from enterprise to SME segment — major strategy change mid-execution",
+          "Shutting down 3 product lines to focus on core spend management"
+        ],
+        "earnings_triggers": [],
+        "risks": [
+          "Customer churn of top 3 enterprise clients in Q3 and Q4",
+          "Management credibility broken after 3 guidance cuts in 12 months",
+          "Cash burn increasing — runway under 12 months at current burn rate",
+          "Founder selling shares in open market despite bullish guidance",
+          "Competition from better-funded players (Razorpay, M2P) intensifying",
+          "Promoter stake too low for any committed buyback or open-market support"
+        ],
+        "qa": [
+          { "q": "Why did top 3 clients churn?", "a": "Evasive — said clients moved to in-house solutions but did not provide specifics" },
+          { "q": "Cash runway at current burn?", "a": "Management said 18 months but did not provide working capital detail — flagged as evasion" }
+        ],
+        "consistency": [
+          { "promise": "Q2: FY25 revenue 1100 Cr guidance", "actual": "850 Cr delivered — missed by 23%", "status": "missed" },
+          { "promise": "Q3: breakeven by Q4 FY25", "actual": "Made a loss — missed", "status": "missed" },
+          { "promise": "Q1: no major customer churn", "actual": "Lost 3 enterprise clients — missed", "status": "missed" }
+        ],
+        "mgmt_stars": 1,
+        "credibility_label": "Chronic over-promise — 3 consecutive major guidance misses",
+        "investor_verdict": "Management credibility is destroyed after 3 consecutive large guidance misses and a fundamental strategy pivot mid-execution. The business model is under competitive pressure, cash is burning, and the promoter is selling. This is not a temporary technical dip — the investment thesis is broken. Exit the full position (40,320) and redeploy into KIRLOSENG on dip."
+      },
+      "action": {
+        "label": "EXIT",
+        "css_class": "action-exit",
+        "priority": "high",
+        "rationale": "Score 12/100 — thesis broken. Stage 4, PAT loss, management credibility destroyed. Exit all 240 shares. Free up ~40K for redeployment.",
+        "suggested_weight": 0.0,
+        "target_weight": 0.0
+      }
+    }
+  ]
+}

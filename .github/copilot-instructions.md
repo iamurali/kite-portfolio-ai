@@ -9,7 +9,7 @@ follow the instructions below.
 
 ## Trigger phrases
 Activate these instructions when the user mentions:
-- "analyse my portfolio", "portfolio performance", "portfolio vs nifty"
+- "analyse my portfolio", "portfolio vs nifty", "/kite-portfolio:performance"
 - "stage analysis", "stock stages", "how is my portfolio doing"
 - "portfolio review", "rebalancing plan", "/portfolio"
 

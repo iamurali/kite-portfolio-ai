@@ -1,6 +1,6 @@
 # kite-portfolio-ai
 
-> AI-powered portfolio analysis for Zerodha Kite — stage classification, benchmark comparison, concall AI summaries, and rebalancing recommendations — all in a dark-mode HTML report on your Desktop.
+> AI-powered portfolio analysis for Zerodha Kite — fundamentals-first rebalancing, on-demand stock deep-dive, benchmark comparison, concall AI summaries — all in a dark-mode HTML report on your Desktop.
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-6366f1)](https://claude.ai/code)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-22c55e)](https://modelcontextprotocol.io)
@@ -12,15 +12,38 @@
 
 ## What it does
 
-Run `/portfolio` in Claude Code (or ask any supported AI tool to "analyse my portfolio") and get:
+Run `/portfolio` in Claude Code and get a 5-tab dark-mode report — or run `/kite-portfolio:stock TICKER` for an on-demand institutional-grade deep-dive on any NSE/BSE stock.
 
-| Module | What you get |
+| Command | What you get |
 |---|---|
-| **Performance vs Benchmarks** | Your 1M/3M/6M/1Y returns vs Nifty 50, Nifty 500, Smallcap 250, Flexicap MF, Smallcap MF — all live from Kite |
-| **Stage Analysis** | Weinstein Stage 1–4 classification for every holding using 50/150/200 MA computed from live daily candles |
-| **Concall AI Summary** | Company overview, guidance, strategic updates, earnings triggers, risks, key Q&A, management consistency score — from whitelisted sources only |
-| **Rebalancing Plan** | Prioritised action list with specific price levels, suggested weights, and capital reallocation table |
-| **HTML Report** | A 4-tab dark-mode report saved to your Desktop — opens automatically |
+| `/portfolio` | Shows sub-skill menu |
+| `/kite-portfolio:performance` | Module 1 only — benchmark comparison (1M/3M/6M/1Y vs Nifty 50/500/Smallcap/MFs) |
+| `/kite-portfolio:stage` | Module 2 only — stage classification + fundamentals-first rebalancing |
+| `/kite-portfolio:full` | Full 5-tab report: Overview · Performance · Stage Analysis · Rebalancing · Stock Analyser |
+| `/kite-portfolio:stock TICKER` | On-demand deep-dive for any NSE/BSE stock — 8 sections, score card, bull/base/bear cases |
+
+### Portfolio Report Tabs
+
+| Tab | Content |
+|---|---|
+| **Overview** | Snapshot, holdings table, allocation chart, today's change, Stage 2 / at-risk capital |
+| **Performance** | 1M/3M/6M/1Y returns vs Nifty 50, Nifty 500, Smallcap 250, Flexicap MF, Smallcap MF |
+| **Stage Analysis** | Weinstein stage per stock + 13-section concall AI summary + management credibility ⭐ |
+| **Rebalancing** | Priority list with **0–100 fundamental score chips** · capital reallocation table |
+| **Stock Analyser** | Type any NSE/BSE symbol → full deep-dive injected inline (powered by bridge server) |
+
+### Stock Analyser (`/kite-portfolio:stock`) — 8 Sections
+
+| Section | Framework used |
+|---|---|
+| **Quarterly Earnings** | Last 4Q P&L table, beat/miss streak, earnings momentum |
+| **Concall Intelligence** | 13-section card: guidance, triggers, risks, Q&A, management consistency ⭐ |
+| **Financial Forensics** | 3-statement analysis, 12-ratio dashboard, 5-category red flag detector |
+| **Competitive Landscape** | 10-dimension moat rating, peer comparison table, market share trend |
+| **Sector Intelligence** | Growth drivers, govt policy/PLI, regulatory context, trigger map |
+| **Growth Triggers** | Sized triggers with timeline and probability |
+| **Management Integrity** | 12-quarter promise vs delivery matrix, integrity grade A–D |
+| **Final Verdict** | Bull/base/bear cases, valuation vs history, key monitorable, price levels |
 
 ---
 
@@ -30,15 +53,14 @@ Run `/portfolio` in Claude Code (or ask any supported AI tool to "analyse my por
 |---|---|
 | **Zerodha Kite account** | Any account with CNC holdings |
 | **Kite MCP server** | The `kite` MCP server must be configured (see [Setup](#setup)) |
-| **AI tool** | Claude Code, Cursor, GitHub Copilot, or any MCP-compatible agent |
+| **Claude Code** | [claude.ai/code](https://claude.ai/code) — recommended tool |
+| **Node.js ≥ 18** | Required for the bridge server (Tab 5 interactivity) |
 
 ---
 
 ## Setup
 
 ### 1. Install Kite MCP server
-
-Add the Kite MCP server to your AI tool's MCP config. The server is provided by [Zerodha's Kite MCP](https://kite.trade) and exposes your portfolio data as tools.
 
 **Claude Code** — add to `~/.claude/.mcp.json`:
 ```json
@@ -78,45 +100,51 @@ Add the Kite MCP server to your AI tool's MCP config. The server is provided by 
 }
 ```
 
-> **Note:** The exact MCP package name may differ. Check [Zerodha's official documentation](https://kite.trade/docs) for the current package.
+> Check [Zerodha's official documentation](https://kite.trade/docs) for the current MCP package name.
 
-### 2. Install the skill
+### 2. Clone and install
 
-Choose your AI tool:
-
-#### Claude Code (recommended)
 ```bash
-# Clone this repo
 git clone https://github.com/YOUR_USERNAME/kite-portfolio-ai.git
-
-# Copy skill files to Claude's skills directory
-cp -r kite-portfolio-ai/claude-skill ~/.claude/skills/kite-portfolio
-
-# Restart Claude Code — the skill auto-loads
+cd kite-portfolio-ai
 ```
 
-#### Cursor
+**Claude Code skill:**
 ```bash
-# Copy .cursor/rules to your project
-cp -r kite-portfolio-ai/.cursor/rules/.  YOUR_PROJECT/.cursor/rules/
+cp -r claude-skill ~/.claude/skills/kite-portfolio
 ```
 
-#### GitHub Copilot
+**Cursor rules:**
 ```bash
-# Copy instructions to your project
-cp kite-portfolio-ai/.github/copilot-instructions.md YOUR_PROJECT/.github/
+cp -r .cursor/rules/. YOUR_PROJECT/.cursor/rules/
 ```
 
-#### Any MCP-compatible tool
-Use the files in `mcp/` — they follow the standard MCP tool definition schema.
+### 3. Start the bridge server (for Tab 5 Stock Analyser)
 
-### 3. Authenticate
+The bridge server runs locally on port 7891 and connects the HTML report's Tab 5 input to the `/kite-portfolio:stock` sub-skill. Without it, Tab 5 shows a fallback command to copy.
 
-On first use, you'll be asked to log in to Kite:
+```bash
+cd portfolio-bridge
+npm install
+npm start
+```
+
+Server starts at `http://localhost:7891`. Keep it running while using the report.
+
+Once running, open your portfolio report at:
+```
+http://localhost:7891/report
+```
+
+> **Why not open the HTML file directly?** Browsers (Safari, Chrome) block `fetch()` from `file://` to `localhost` regardless of CORS headers. The bridge serves the report at `http://localhost:7891/report` so Tab 5's API calls are same-origin and work without restrictions. Without the bridge, the report still opens and all 4 tabs work — only Tab 5 Stock Analyser is unavailable.
+
+### 4. Authenticate
+
+On first use:
 ```
 /portfolio
 ```
-Click the login link, complete authentication in your browser, then say `continue`.
+Click the login link, complete Kite authentication in your browser, then say `continue`.
 
 ---
 
@@ -124,28 +152,65 @@ Click the login link, complete authentication in your browser, then say `continu
 
 ### Claude Code
 ```
-/portfolio              — asks which module you want
-/portfolio performance  — Module 1 only (benchmarks)
-/portfolio stage        — Module 2 only (stage + concall)
-/portfolio full review  — both modules, full HTML report
+/portfolio                  — shows sub-skill menu
+/kite-portfolio:performance      — benchmark comparison only
+/kite-portfolio:stage            — stage + fundamentals only
+/kite-portfolio:full             — both modules together (full 5-tab report)
+
+/kite-portfolio:stock NETWEB     — deep-dive on NETWEB
+/kite-portfolio:stock HDFCBANK   — deep-dive on HDFCBANK
+/kite-portfolio:stock KIRLOSENG  — any NSE/BSE ticker
 ```
 
-### Any AI tool (natural language)
+### Natural language (any AI tool)
 ```
 "analyse my portfolio"
 "portfolio vs nifty"
 "stage analysis of my holdings"
-"how is my portfolio doing"
-"portfolio review"
+"deep dive on TATAELXSI"
+"research BAJAJFINSV fundamentals"
 ```
 
-### Output
+### Output files
 
-A file `~/Desktop/portfolio-report-YYYY-MM-DD.html` opens automatically with 4 tabs:
-- **Overview** — snapshot, holdings table, allocation chart, top 3 action flags
-- **Performance** — benchmark comparison table, visual bar chart, stock-wise returns
-- **Stage Analysis** — sidebar stock selector, full concall AI summary per stock
-- **Rebalancing** — priority list, capital reallocation table, health score
+| File | Location | Contents |
+|---|---|---|
+| Portfolio report | `~/Desktop/portfolio-report-YYYY-MM-DD.html` | 5-tab dark-mode report |
+| Stock analysis | `~/Desktop/stock-analysis-TICKER-YYYY-MM-DD.html` | Standalone deep-dive |
+| Analysis cache | `~/.portfolio/cache/TICKER-YYYY-MM-DD.json` | 7-day cached result |
+
+---
+
+## Rebalancing — Fundamentals First
+
+The rebalancing tab now uses a **0–100 fundamental score** to drive actions. Technical stage is a timing signal only, not the primary driver.
+
+| Score | Action | Logic |
+|---|---|---|
+| 85–100 | **STRONG ADD** | Business excellent + technicals confirm |
+| 70–84 | **ADD** | Strong fundamentals, await technical entry |
+| 55–69 | **STRONG HOLD** | Solid business, neutral technicals |
+| 40–54 | **HOLD** | Steady, no new buys |
+| 30–39 | **WATCH** | Fundamentals weakening |
+| 15–29 | **TRIM** | Earnings slowing + overvalued |
+| 0–14 | **EXIT** | Thesis broken — not just technical decline |
+
+Each stock shows `[HOLD] [72/100]` — click the score chip to expand the breakdown:
+```
+Business Quality 28/40  Earnings:8 · Mgmt:8 · Moat:7 · BalSheet:5
+Macro/Micro      24/30  Sector:9 · Competitive:8 · Valuation:7
+Technical Stage  20/30  Stage 1 (basing)
+```
+
+---
+
+## Stock Analyser Cache
+
+`/kite-portfolio:stock` results are cached for 7 days in `~/.portfolio/cache/`. The Tab 5 input returns instantly on repeat requests with a "Cached · 2d ago" badge.
+
+To force a fresh analysis: click `⟳ Refresh` in Tab 5, or run `/kite-portfolio:stock TICKER` in Claude Code again.
+
+Cache is automatically invalidated after 7 days or on manual refresh.
 
 ---
 
@@ -156,36 +221,31 @@ Open [`examples/sample-report.html`](examples/sample-report.html) in your browse
 > All screenshots use anonymised dummy data — not a real portfolio.
 
 ### Tab 1 — Overview
-Snapshot banner with top priority actions · holdings table with stage badges and action badges · portfolio allocation bar chart · stat grid (Stage 2 capital, at-risk capital, tracking positions).
+Snapshot banner · holdings table with stage and action badges · portfolio allocation bar chart · stat grid (Stage 2 capital, at-risk %, tracking positions, today's P&L).
 
 ![Overview tab](assets/screenshot-overview.png)
 
----
-
 ### Tab 2 — Performance
-Returns vs benchmarks table (1M / 3M / 6M / 1Y) · visual bar chart comparing portfolio vs Nifty 50/500/Smallcap 250/MF benchmarks · stock-wise return breakdown · key insights.
+Returns vs 6 benchmarks (1M/3M/6M/1Y) · visual bar chart · stock-wise returns table · key insights.
 
 ![Performance tab](assets/screenshot-performance.png)
 
----
-
 ### Tab 3 — Stage Analysis
-Stage summary table with 50/150/200 MA columns · left sidebar stock selector · full per-stock card with: technical MAs, earnings (last 4Q), company overview, concall AI summary (guidance · triggers · risks · Q&A · management consistency ⭐ · investor verdict) · action block.
+Stage summary table (now includes Score and Valuation columns) · left sidebar stock selector · full per-stock card with: technical MAs · earnings (last 4Q) · concall AI 13-section card · action block with score.
 
 ![Stage Analysis tab](assets/screenshot-stage-analysis.png)
 
----
-
 ### Tab 4 — Rebalancing
-Priority action list (EXIT / TRIM / WATCH / ADD) · capital reallocation table (current vs target weight) · portfolio health score (Stage 2 capital, at-risk %, earnings accelerating, 1Y alpha).
+Priority list with **score chips** `[72/100]` (click to expand breakdown) · capital reallocation table · portfolio health score.
 
 ![Rebalancing tab](assets/screenshot-rebalancing.png)
 
----
+### Tab 5 — Stock Analyser *(new in v2)*
+Input any NSE/BSE ticker → click Analyse → score ring (0–100) + 8-section deep-dive injected inline. Cache badge shown for repeat requests. Refresh button forces fresh fetch.
 
-The sample uses these dummy Indian stocks as illustration:
-`TATAELXSI` · `APOLLOHOSP` · `ASTRAL` · `PIIND` · `MUTHOOTFIN` · `DELHIVERY`
-`PAYTM` · `GREAVESCOT` · `CHOLAFIN` · `RELAXO` · `KPIGREEN`
+![Stock Analyser tab](assets/screenshot-stock-analyser.png)
+
+> **Note:** `screenshot-stock-analyser.png` will be added after the first `/stock` run generates a live report. Take a screenshot of Tab 5 with a result loaded and save to `assets/`.
 
 ---
 
@@ -195,24 +255,96 @@ The sample uses these dummy Indian stocks as illustration:
 User: /portfolio
 
 Claude Code
-  ├── mcp__kite__login()          ← authenticate
-  ├── mcp__kite__get_profile()    ← get user info
-  ├── mcp__kite__get_holdings()   ← live portfolio  ┐
-  ├── mcp__kite__get_historical_data() × 14         ├─ parallel batch
-  ├── WebSearch() × 4 (MF returns)                  │
-  └── WebSearch() × 11 (concall data)               ┘
+  ├── mcp__kite__login()                   ← authenticate (if needed)
+  ├── mcp__kite__get_profile()             ← user info
+  ├── mcp__kite__get_holdings()            ← live portfolio  ┐
+  ├── mcp__kite__get_historical_data() ×N  ← 365d candles    ├─ parallel
+  ├── WebSearch() × 4                      ← MF returns      │
+  └── WebSearch() × N                      ← concall data    ┘
 
-  ↓ compute
-  ├── Portfolio period returns (1M/3M/6M/1Y)
-  ├── Benchmark returns (Nifty 50/500/Smallcap 250)
-  ├── MA50/MA150/MA200 + slope → Stage 1/2/3/4
-  └── Concall AI summary (overview, guidance, risks, Q&A, consistency)
+  ↓ compute (Module 2)
+  ├── MA50/MA150/MA200 + slope → Weinstein Stage 1/2/3/4
+  ├── Fundamental Score (0–100) per stock
+  │     Business Quality (40): earnings · mgmt · moat · balance sheet
+  │     Macro/Micro (30):      sector · competitive · valuation
+  │     Technical (30):        stage
+  └── Concall AI 13-section summary per stock
 
-  ↓ write HTML in 4 Bash appends (< 32K tokens each)
-  └── ~/Desktop/portfolio-report-YYYY-MM-DD.html  ← opens automatically
+  ↓ writes ONE compact JSON file (~15–20 KB, ~2,500 tokens)
+  └── ~/.portfolio/data/portfolio-YYYY-MM-DD.json
+
+Browser loads http://localhost:7891/report (static report.html from repo)
+  └── fetches /data/latest → renders all 5 tabs client-side from JSON
 ```
 
-**Speed:** ~4–5 minutes for full review (all fetches are parallelised).
+**Token savings vs v2:** ~79% reduction per run (12,000 → 2,500 tokens). Claude no longer re-types CSS, JS, or HTML structure every run.
+
+```
+User: /kite-portfolio:stock NETWEB
+
+Claude Code
+  ├── Subagent A: 7 parallel data fetches (candles + 6 WebSearches)
+  │     Returns structured JSON summary only (keeps main context lean)
+  ├── Subagent B: 8 analysis sections using prompt library frameworks
+  │     Returns compressed HTML fragments only
+  └── Main: score computation + HTML assembly + file writes
+        → ~/Desktop/stock-analysis-NETWEB-YYYY-MM-DD.html
+        → ~/.portfolio/cache/NETWEB-YYYY-MM-DD.json (7-day cache)
+        → ~/.portfolio/results/NETWEB-YYYY-MM-DD.html (bridge pickup)
+```
+
+**Speed:**
+- `/portfolio` full review: ~5–7 min (fundamental scoring adds ~1–2 min vs v1)
+- `/kite-portfolio:stock` fresh analysis: ~2–4 min
+- `/kite-portfolio:stock` from cache: ~1–2 seconds
+
+---
+
+## Architecture
+
+```
+kite-portfolio-ai/
+├── claude-skill/
+│   ├── SKILL.md              ← master orchestrator (3 modules)
+│   ├── performance.md        ← Module 1: benchmark comparison → writes JSON
+│   ├── stage-analysis.md     ← Module 2: stage + 0-100 fundamental scoring → writes JSON
+│   ├── json-output.md        ← JSON write spec, merge pattern, token budget
+│   ├── stock-analyser.md     ← Module 3: on-demand deep-dive (/kite-portfolio:stock)
+│
+├── report/
+│   └── report.html           ← static UI (CSS + JS render engine, never regenerated)
+│
+├── docs/
+│   ├── portfolio-data-schema.md ← JSON field contract (master reference)
+│   ├── sample-portfolio-data.json ← complete sample for 4 stocks
+│   ├── stock-analyser.md     ← Module 3: on-demand deep-dive (/stock)
+│   └── html-report.md        ← HTML template + CSS + Tab 5 + score chip
+│
+├── portfolio-bridge/
+│   ├── server.js             ← Express bridge (port 7891)
+│   ├── package.json
+│   └── README.md
+│
+├── docs/
+│   ├── prompt-library-index.md   ← 8 prompt IDs mapped to skill sections
+│   ├── stage-framework.md
+│   ├── mf-benchmarks.md
+│   └── html-ui-standards.md
+│
+├── .cursor/rules/
+├── .github/
+├── mcp/
+├── examples/
+└── assets/
+```
+
+**Runtime directories** (auto-created, not in repo):
+```
+~/.portfolio/
+  cache/     ← 7-day stock analysis cache (TICKER-DATE.json)
+  results/   ← bridge pickup files (TICKER-DATE.html)
+  analyse-queue/  ← trigger files from Tab 5 → bridge → skill
+```
 
 ---
 
@@ -228,83 +360,55 @@ Claude Code
 
 ## Trusted data sources
 
-Concall and earnings data is fetched **only** from:
-`screener.in` · `trendlyne.com` · `tickertape.in` · `moneycontrol.com` · `economictimes.indiatimes.com` · `businessstandard.com` · `livemint.com` · `bseindia.com` · `nseindia.com`
+**Whitelisted only** — concall and earnings data is never fetched from unverified sources:
 
-MF returns: `valueresearchonline.com` (primary) · `moneycontrol.com` (cross-verify)
+`screener.in` · `trendlyne.com` · `tickertape.in` · `moneycontrol.com` · `economictimes.indiatimes.com` · `businessstandard.com` · `livemint.com` · `bseindia.com` · `nseindia.com` · `valueresearchonline.com`
+
+Red flag / governance research also uses: `capitalmind.in` · `valuepickr.com`
 
 ---
 
 ## Tracking positions
 
-Any holding with weight ≤ 0.2% of portfolio is automatically labelled **TRACKING** — the skill never recommends EXIT based on size alone. Full analysis still runs.
-
----
-
-## File structure
-
-```
-kite-portfolio-ai/
-├── README.md                    ← this file
-├── LICENSE
-│
-├── claude-skill/                ← Claude Code skill (primary)
-│   ├── SKILL.md                 ← skill entry point (YAML frontmatter + instructions)
-│   ├── performance.md           ← Module 1: benchmark comparison
-│   ├── stage-analysis.md        ← Module 2: stage + concall analysis
-│   └── html-report.md           ← HTML generation instructions + UI standards
-│
-├── .cursor/
-│   └── rules/
-│       └── kite-portfolio.mdc   ← Cursor rules format
-│
-├── .github/
-│   └── copilot-instructions.md  ← GitHub Copilot instructions
-│
-├── mcp/
-│   └── tool-definitions.json    ← MCP-standard tool definitions (any MCP client)
-│
-├── docs/
-│   ├── stage-framework.md       ← Weinstein stage classification reference
-│   ├── mf-benchmarks.md         ← MF benchmark funds reference
-│   └── html-ui-standards.md     ← UI colour palette + component standards
-│
-└── examples/
-    └── sample-report.html       ← Example output (anonymised)
-```
+Any holding with weight ≤ 0.2% is automatically labelled **TRACKING** — never EXIT based on size alone. Full analysis still runs.
 
 ---
 
 ## Supported tools
 
-| Tool | Format used | Location |
+| Tool | Format | Location |
 |---|---|---|
 | **Claude Code** | SKILL.md (Anthropic format) | `claude-skill/` |
 | **Cursor** | `.mdc` rules | `.cursor/rules/` |
 | **GitHub Copilot** | `copilot-instructions.md` | `.github/` |
-| **VS Code Copilot Chat** | `copilot-instructions.md` | `.github/` |
 | **Any MCP client** | MCP tool definitions JSON | `mcp/` |
-| **ChatGPT / OpenAI** | System prompt in `docs/` | `docs/system-prompt.md` |
+| **ChatGPT / OpenAI** | System prompt | `docs/system-prompt.md` |
 
 ---
 
 ## Contributing
 
-PRs welcome for:
-- Additional benchmarks (e.g. Midcap 150, BSE 500)
-- New concall data sources
-- Support for additional exchanges (BSE SME, NSE Emerge)
-- Improvements to the HTML report UI
+PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting.
+Areas where help is especially welcome:
+- Additional benchmarks (Midcap 150, BSE 500, sector indices)
+- New concall / forensics data sources
+- BSE SME / NSE Emerge exchange support
+- HTML report UI improvements
+- New AI tool integrations (Amazon Q, Gemini)
+
+**When updating the skill files, also update:**
+- `README.md` — especially the Setup section and tab descriptions
+- `CHANGELOG.md` — add an entry under `[Unreleased]`
+- `assets/` — take fresh screenshots of any changed tabs and replace the existing ones
 
 ---
 
 ## Disclaimer
 
-⚠️ **AI systems are unpredictable and non-deterministic. This tool is for informational purposes only and does not constitute financial advice. All investment decisions are your own responsibility. Past performance is not indicative of future results. Use at your own risk.**
+⚠️ **This tool is for informational purposes only and does not constitute financial advice. All investment decisions are your own responsibility. Past performance is not indicative of future results. Use at your own risk.**
 
-This tool connects to your live Zerodha Kite account. Never share your API credentials. The tool is read-only — it cannot place, modify, or cancel orders.
+This tool connects to your live Zerodha Kite account in read-only mode — it cannot place, modify, or cancel orders. Never share your API credentials or session tokens.
 
 ---
 

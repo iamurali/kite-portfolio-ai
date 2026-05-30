@@ -1,13 +1,10 @@
 ---
 name: kite-portfolio
 description: >
-  Analyses a Zerodha Kite stock portfolio. Use when the user says /portfolio,
-  "analyse my portfolio", "portfolio performance", "portfolio vs nifty",
-  "how is my portfolio doing", "stage analysis", "stock stages", or
-  "portfolio review". Fetches live holdings and historical price data via
-  the Kite MCP server, computes benchmark comparisons and Weinstein stage
-  classifications, fetches concall AI summaries from trusted sources, and
-  generates a 4-tab dark-mode HTML report saved to the Desktop.
+  Analyses a Zerodha Kite stock portfolio OR performs on-demand stock deep-dive.
+  Main entry for kite-portfolio. Use when the user says /portfolio or wants to choose
+  which analysis to run. For direct sub-skill invocations use /kite-portfolio:performance,
+  /kite-portfolio:stage, /kite-portfolio:full, or /kite-portfolio:stock <TICKER>.
 ---
 
 # Kite Portfolio Analysis Skill
@@ -17,17 +14,34 @@ description: >
 - `mcp__kite__get_profile`
 - `mcp__kite__get_holdings`
 - `mcp__kite__get_historical_data`
+- `mcp__kite__search_instruments` (stock-analyser only)
+- `mcp__kite__get_ltp` (stock-analyser only)
 
 ## Modules
-Two modules — ask user which, or run both for "full review":
-1. **Module 1 — Performance vs Benchmarks** → `performance.md`
-2. **Module 2 — Stage & Earnings Analysis** → `stage-analysis.md`
+Three modules — choose based on user intent:
 
-For **full review**: Module 1 writes HTML Parts 1–2, Module 2 appends Parts 3–4.
+1. **Module 1 — Performance vs Benchmarks** → `performance.md`
+2. **Module 2 — Stage & Earnings Analysis (Fundamental Scoring)** → `stage-analysis.md`
+3. **Module 3 — Stock Analyser (on-demand deep-dive)** → `stock-analyser.md`
+
+For **full portfolio review**: Module 1 writes HTML Parts 1–2, Module 2 appends Parts 3–4 + Tab 5 shell.
+
+For **`/kite-portfolio:stock <TICKER>`**: Run Module 3 standalone. Does NOT require holdings data.
 
 ---
 
-## Step 0 — ALWAYS FIRST (parallel)
+## Module Routing — Read FIRST
+
+**If the invocation is `/kite-portfolio:stock <TICKER>` or any "analyse TICKER / deep dive on TICKER / research TICKER" request:**
+→ Skip Step 0 entirely. Load `stock-analyser.md` and follow its steps.
+→ Do NOT call `get_profile()` or `get_holdings()`. Module 3 resolves the ticker via `search_instruments` only.
+
+**If the invocation is `/portfolio`, `/kite-portfolio:performance`, `/kite-portfolio:stage`, or `/kite-portfolio:full`:**
+→ Continue to Step 0 below.
+
+---
+
+## Step 0 — ALWAYS FIRST for portfolio analysis (parallel)
 
 ```
 mcp__kite__get_profile()
@@ -103,28 +117,53 @@ Show login URL as markdown link. Wait for user confirmation.
 
 ---
 
-## HTML Assembly
+## Bridge Server Check
 
-**Module 1 only:** writes Parts 1+2, then Parts 3+4 with placeholders.
-**Module 2 only:** writes all 4 parts (Tab 2 = placeholder).
-**Full review:** Module 1 writes Parts 1+2, Module 2 appends Parts 3+4.
+Before opening the portfolio report, check if the bridge server is running:
+```bash
+curl -s --max-time 2 http://localhost:7891/health
+```
+- If `{"status":"ok",...}` → open report at `http://localhost:7891/report` (same-origin, Tab 5 works)
+- If connection refused → open `~/Desktop/portfolio-report-YYYY-MM-DD.html` directly, and note: "Start `cd portfolio-bridge && npm start` to enable Tab 5 Stock Analyser."
 
-Tab 2 placeholder (Module-2-only):
-```html
-<div id="tab-performance" class="tab-content">
-  <div class="card" style="text-align:center;padding:40px;color:var(--muted)">
-    Run <strong>/portfolio performance</strong> to populate benchmark comparison.
-  </div>
-</div>
+**Why the bridge URL?** Browsers block `fetch()` from `file://` to `localhost` (CORS null-origin restriction). The bridge serves the report at `http://localhost:7891/report` so all Tab 5 fetch calls are same-origin and work without any restrictions.
+
+## JSON Output (replaces HTML generation)
+
+Claude no longer generates HTML. Instead, write a single JSON file per run.
+The static `report/report.html` (served by the bridge) reads JSON and renders client-side.
+
+**Module 1 only:** writes `~/.portfolio/data/portfolio-YYYY-MM-DD.json` with `meta`, `portfolio` (partial), `benchmarks`, `holdings[].returns`.
+**Module 2 only:** writes same file with `meta`, `portfolio` (full), `holdings[].technical/fundamental_score/earnings/concall/action/risk_flags`.
+**Full review:** Module 1 writes first, Module 2 reads, merges, and overwrites with complete data.
+
+JSON data path: `~/.portfolio/data/portfolio-YYYY-MM-DD.json`
+Latest symlink: `~/.portfolio/data/latest.json`
+Schema reference: `docs/portfolio-data-schema.md`
+
+**Token budget:** Module 1 JSON ≤ 1,500 tokens. Module 2 JSON ≤ 2,000 tokens. Total ≤ 3,000 tokens (vs ~12,000 for HTML generation).
+
+After writing JSON, open the report:
+```bash
+curl -s --max-time 1 http://localhost:7891/health > /dev/null 2>&1 \
+  && open http://localhost:7891/report \
+  || echo "Bridge not running. Start: cd portfolio-bridge && npm start"
 ```
 
 ---
 
 ## Output (chat — brief)
-After generating the report: current value, total P&L %, top 3 action flags, and
+For portfolio report: current value, total P&L %, top 3 action flags (with scores), and
 "Report saved to Desktop and opened in your browser."
 
+For `/kite-portfolio:stock`: ticker, score/100, action, 1-line key insight, standalone HTML path.
+
 ## Reference files
-- `performance.md` — Module 1 logic
-- `stage-analysis.md` — Module 2 logic
-- `html-report.md` — HTML write pattern + UI standards
+- `performance.md` — Module 1: benchmark comparison + JSON write (performance fields)
+- `stage-analysis.md` — Module 2: stage classification + fundamental scoring + JSON write (stage/concall fields)
+- `stock-analyser.md` — Module 3: on-demand deep-dive for any NSE/BSE ticker
+- `json-output.md` — JSON write spec, schema examples, merge pattern, token budget
+- `docs/portfolio-data-schema.md` — full JSON field reference (master contract)
+- `docs/sample-portfolio-data.json` — complete sample JSON for reference
+- `docs/prompt-library-index.md` — prompt ID → section mapping for stock-analyser
+- `report/report.html` — static report UI (never modify from skill — managed separately)

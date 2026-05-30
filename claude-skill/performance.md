@@ -1,3 +1,13 @@
+---
+name: portfolio
+subcommand: performance
+description: >
+  Module 1: Compare Zerodha Kite portfolio returns against NIFTY 50, NIFTY 500,
+  and NIFTY SMLCAP 250 benchmarks. Use when the user says "/kite-portfolio:performance",
+  "how does my portfolio compare to nifty", "benchmark comparison", or "portfolio vs index".
+  Writes performance fields to ~/.portfolio/data/portfolio-YYYY-MM-DD.json and opens report.
+---
+
 # Module 1 — Portfolio Performance vs Benchmarks
 
 ## MCP Tools used
@@ -96,29 +106,37 @@ Mark ✅/❌ vs Nifty 50 per period.
 
 ---
 
-## Step 8 — Write HTML Parts 1 + 2
+## Step 8 — Write JSON Output
 
-Follow `html-report.md` chunked write pattern.
+**No HTML generation.** Write a single JSON file following `docs/portfolio-data-schema.md`.
 
-**Part 1 (cat >):** `<!DOCTYPE html>` through end of Tab 1 (Overview tab content).
-**Part 2 (cat >>):** Tab 2 (Performance tab content).
+Populate these JSON sections from Module 1 data:
+- `meta` — generated_at, report_date, user_name, schema_version, modules_run: ["performance"]
+- `portfolio` — all portfolio-level fields (total_invested, total_current, pnl, return_pct, day_change, num_stocks)
+  - Leave stage*_pct, atrisk_pct, accel_pct, avg_mgmt_stars, top_priority_actions as null (Module 2 fills these)
+- `benchmarks` — nifty50, nifty500, smlcap250, flexicap_mf, smallcap_mf, portfolio returns for 1m/3m/6m/1y
+- `holdings[]` — for each stock: core fields + returns object + vs_nifty50 beat flags
+  - Leave technical, fundamental_score, earnings, risk_flags, concall, action as absent (Module 2 adds them)
 
-If full review: leave Tab 3 and Tab 4 for Module 2 to append.
-If Module 1 only: after Part 2, write a minimal Part 3 (Tab 3 + Tab 4 placeholders) and Part 4 (closing `</body></html>` + script).
+```bash
+mkdir -p ~/.portfolio/data
 
-Placeholder for missing tabs when Module 1 runs alone:
-```html
-<div id="tab-stages" class="tab-content">
-  <div class="card" style="text-align:center;padding:40px;color:var(--muted)">
-    Run <strong>/portfolio stage</strong> to populate stage analysis.
-  </div>
-</div>
-<div id="tab-rebalance" class="tab-content">
-  <div class="card" style="text-align:center;padding:40px;color:var(--muted)">
-    Run <strong>/portfolio stage</strong> to populate rebalancing plan.
-  </div>
-</div>
-<script>
-function showTab(n,b){document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));document.getElementById('tab-'+n).classList.add('active');b.classList.add('active');}
-</script></body></html>
+# Write to temp then rename atomically
+cat > ~/.portfolio/data/portfolio-$(date +%Y-%m-%d).tmp.json << 'EOF'
+{"meta":{"generated_at":"<ISO_TIMESTAMP>","report_date":"<YYYY-MM-DD>","user_name":"<NAME>","schema_version":"2.0","modules_run":["performance"]},"portfolio":{...},"benchmarks":{...},"holdings":[...]}
+EOF
+mv ~/.portfolio/data/portfolio-$(date +%Y-%m-%d).tmp.json \
+   ~/.portfolio/data/portfolio-$(date +%Y-%m-%d).json
+
+ln -sf ~/.portfolio/data/portfolio-$(date +%Y-%m-%d).json \
+        ~/.portfolio/data/latest.json
 ```
+
+**Token budget: target ≤ 1,500 tokens for the JSON write** (compact, no whitespace in final output).
+
+After writing, check bridge and open report:
+```bash
+curl -s --max-time 1 http://localhost:7891/health > /dev/null 2>&1 && open http://localhost:7891/report || echo "Start bridge: cd portfolio-bridge && npm start"
+```
+
+If full review: Module 2 will read this JSON, merge its data, and overwrite the file with the complete dataset.
