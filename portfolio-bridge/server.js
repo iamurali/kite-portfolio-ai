@@ -468,34 +468,29 @@ function pollForResult(ticker, timeoutMs, intervalMs) {
   });
 }
 
-// ─── Queue Watcher — auto-spawn claude for trigger files ─────────────────────
+// ─── Queue Watcher — auto-spawn analyse.mjs for trigger files ────────────────
+
+const ANALYSE_SCRIPT = path.join(__dirname, 'analyse.mjs');
 
 function spawnClaudeAnalysis(ticker, refresh) {
-  // /kite-portfolio:stock is the registered slash command.
-  // stock-analyser.md frontmatter: name: kite-portfolio, subcommand: stock → /kite-portfolio:stock
-  const prompt = `/kite-portfolio:stock ${ticker}`;
-  const claudeBin = fs.existsSync(CLAUDE_BIN) ? CLAUDE_BIN : 'claude';
-  const args = [
-    '-p', prompt,
-    '--permission-mode', 'bypassPermissions',
-    '--add-dir', os.homedir(),           // grant access to ~/.portfolio/ for writing results
-  ];
+  // V3: run analyse.mjs locally — single Node process, 1 Claude call, exact schema
+  const nodeArgs = [ANALYSE_SCRIPT, ticker];
+  if (refresh) nodeArgs.push('--refresh');
 
-  console.log(`[queue] Spawning: ${claudeBin} -p "${prompt}"`);
-  console.log(`[queue]   cwd: ${path.join(__dirname, '..')}`);
-  const child = spawn(claudeBin, args, {
-    cwd: path.join(__dirname, '..'),     // portfolio repo root → loads .claude/settings.json (kite MCP)
+  console.log(`[queue] Spawning: node ${ANALYSE_SCRIPT} ${ticker}${refresh ? ' --refresh' : ''}`);
+  const child = spawn('node', nodeArgs, {
+    cwd: path.join(__dirname, '..'),
     env: { ...process.env, PATH: process.env.PATH + ':/opt/homebrew/bin:/usr/local/bin' },
     stdio: ['ignore', 'pipe', 'pipe']
   });
 
   child.stdout.on('data', d => {
     const line = d.toString().trim();
-    if (line) console.log(`[claude:${ticker}] ${line.slice(0, 120)}`);
+    if (line) console.log(`[analyse:${ticker}] ${line.slice(0, 200)}`);
   });
   child.stderr.on('data', d => {
     const line = d.toString().trim();
-    if (line) console.error(`[claude:${ticker}:err] ${line.slice(0, 120)}`);
+    if (line) console.error(`[analyse:${ticker}] ${line.slice(0, 200)}`);
   });
   child.on('close', code => {
     activeJobs.delete(ticker);
@@ -538,7 +533,7 @@ function syncSkills() {
   const SKILLS_SRC = path.join(__dirname, '..', 'claude-skill');
   const SKILLS_DST = path.join(os.homedir(), '.claude', 'skills', 'kite-portfolio');
 
-  const FILES = ['SKILL.md', 'stock-analyser.md', 'performance.md', 'stage-analysis.md', 'full.md', 'json-output.md'];
+  const FILES = ['SKILL.md', 'stock-analyser-v2.js', 'stock-analyser.md', 'performance.md', 'stage-analysis.md', 'full.md', 'json-output.md'];
   const results = [];
 
   if (!fs.existsSync(SKILLS_DST)) {
