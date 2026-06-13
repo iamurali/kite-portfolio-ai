@@ -235,7 +235,8 @@ After the subagent returns, write the JSON then run Step E, then open the report
 ```bash
 python3 << 'PYEOF'
 import json
-data = json.load(open('/Users/kmurali1/.portfolio/stock-reports/<TICKER>/latest.json'))
+import os; base = os.path.expanduser('~/.portfolio/stock-reports')
+data = json.load(open(f'{base}/<TICKER>/latest.json'))
 # Inject candles from temp file (saved in Step B)
 candles = json.load(open('/tmp/<TICKER>-candles.json'))
 data['candles'] = [{'date': c['date'][:10], 'open': c['open'], 'high': c['high'], 'low': c['low'], 'close': c['close'], 'volume': c['volume']} for c in candles]
@@ -248,7 +249,7 @@ for i, q in enumerate(qs):
         q['qoq_pat_pct'] = round((q['pat_cr'] - prev['pat_cr']) / prev['pat_cr'] * 100, 1) if prev['pat_cr'] else None
     else:
         q['qoq_rev_pct'] = None; q['qoq_pat_pct'] = None
-json.dump(data, open('/Users/kmurali1/.portfolio/stock-reports/<TICKER>/latest.json', 'w'), indent=2)
+json.dump(data, open(f'{base}/<TICKER>/latest.json', 'w'), indent=2)
 print(f"Patched. Candles: {len(data['candles'])}")
 PYEOF
 ```
