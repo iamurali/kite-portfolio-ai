@@ -30,7 +30,7 @@ Copy the full URL from Claude's response and paste it into your browser manually
 
 ### "kite MCP server not found" or MCP tools unavailable
 
-1. Verify your MCP config file exists and has the correct format — see [[Installation]]
+1. Verify your MCP config file exists and has the correct format — see [Installation](Installation.md)
 2. Restart Claude Code after adding the MCP config
 3. Check `npx` is available: `npx --version`
 4. If `npx` is not found, install Node.js from [nodejs.org](https://nodejs.org)
@@ -204,6 +204,6 @@ If you encounter an issue not covered here:
 
 ## Related pages
 
-- [[Installation]] — setup guide
-- [[Bridge-Server]] — bridge-specific configuration
-- [[Commands]] — correct command syntax
+- [Installation](Installation.md) — setup guide
+- [Bridge Server](Bridge-Server.md) — bridge-specific configuration
+- [Commands](Commands.md) — correct command syntax

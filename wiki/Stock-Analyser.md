@@ -241,7 +241,7 @@ Each entry shows source name, what was extracted, and an **Open ↗** link to th
 
 ## Related pages
 
-- [[Scoring-Rubric]] — how the 0-100 score is computed
-- [[Weinstein-Stage-Framework]] — stage classification logic
-- [[Data-Sources]] — full whitelist of trusted sources
-- [[Architecture]] — how the analysis pipeline works
+- [Scoring Rubric](Scoring-Rubric.md) — how the 0-100 score is computed
+- [Weinstein Stage Framework](Weinstein-Stage-Framework.md) — stage classification logic
+- [Data Sources](Data-Sources.md) — full whitelist of trusted sources
+- [Architecture](Architecture.md) — how the analysis pipeline works

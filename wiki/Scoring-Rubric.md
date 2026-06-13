@@ -92,7 +92,7 @@ Measures 4-quarter PAT year-on-year trend.
 | Stage 3 | 8 | Topping — trend weakening |
 | Stage 4 | 0 | Downtrend — capital destruction zone |
 
-See [[Weinstein-Stage-Framework]] for full classification logic.
+See [Weinstein Stage Framework](Weinstein-Stage-Framework.md) for full classification logic.
 
 ---
 
@@ -145,6 +145,6 @@ Score 70+ but valuation score 0–2 (P/E >2x historical average) → **ADD with 
 
 ## Related pages
 
-- [[Weinstein-Stage-Framework]] — stage classification in detail
-- [[Stock-Analyser]] — how the score is displayed in the stock report
-- [[Portfolio-Report]] — how score chips appear in the rebalancing tab
+- [Weinstein Stage Framework](Weinstein-Stage-Framework.md) — stage classification in detail
+- [Stock Analyser](Stock-Analyser.md) — how the score is displayed in the stock report
+- [Portfolio Report](Portfolio-Report.md) — how score chips appear in the rebalancing tab

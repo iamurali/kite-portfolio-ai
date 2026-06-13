@@ -175,6 +175,6 @@ The bridge server picks up `report/report.html` changes automatically (no restar
 
 ## Next steps
 
-- [[Commands]] — full command reference
-- [[Bridge-Server]] — advanced bridge configuration
-- [[Troubleshooting]] — common setup issues
+- [Commands](Commands.md) — full command reference
+- [Bridge Server](Bridge-Server.md) — advanced bridge configuration
+- [Troubleshooting](Troubleshooting.md) — common setup issues

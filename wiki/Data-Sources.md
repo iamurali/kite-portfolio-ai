@@ -110,5 +110,5 @@ To add a new trusted source:
 
 ## Related pages
 
-- [[Architecture]] — how web searches fit into the analysis pipeline
-- [[Contributing]] — guidelines for proposing new sources
+- [Architecture](Architecture.md) — how web searches fit into the analysis pipeline
+- [Contributing](Contributing.md) — guidelines for proposing new sources

@@ -134,6 +134,6 @@ Session typically lasts 6–8 hours. Re-authenticate at the start of each Claude
 
 ## Related pages
 
-- [[Portfolio-Report]] — what each tab shows
-- [[Stock-Analyser]] — the 13 sections in detail
-- [[Scoring-Rubric]] — how the 0-100 score is computed
+- [Portfolio Report](Portfolio-Report.md) — what each tab shows
+- [Stock Analyser](Stock-Analyser.md) — the 13 sections in detail
+- [Scoring Rubric](Scoring-Rubric.md) — how the 0-100 score is computed

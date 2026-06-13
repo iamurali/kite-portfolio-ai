@@ -137,5 +137,5 @@ Never hardcode `/Users/username/` in committed files. Use:
 
 ## Related pages
 
-- [[Architecture]] — understand the codebase before contributing
-- [[Data-Sources]] — how to propose new trusted sources
+- [Architecture](Architecture.md) — understand the codebase before contributing
+- [Data Sources](Data-Sources.md) — how to propose new trusted sources

@@ -38,18 +38,18 @@ Opens `http://localhost:7891/report/stock/AZAD` with a 13-section interactive re
 
 | Page | What's covered |
 |---|---|
-| [[Installation]] | Prerequisites, Kite MCP setup, bridge server, first run |
-| [[Commands]] | All commands, natural language triggers, examples |
-| [[Portfolio-Report]] | 5 tabs explained — Overview, Performance, Stage, Rebalancing, Stock Analyser |
-| [[Stock-Analyser]] | 13 sections, verdict banner, interactive chart, references tab |
-| [[Scoring-Rubric]] | 0–100 scoring dimensions, action thresholds, override rules |
-| [[Weinstein-Stage-Framework]] | Stage 1/2/3/4 definitions, MA logic, classification algorithm |
-| [[Architecture]] | How it works — data flow, token costs, repo structure, JSON schema |
-| [[Data-Sources]] | Whitelisted sources, MF benchmarks, cross-verification rules |
-| [[Bridge-Server]] | Port 7891, endpoints, cache, queue watcher |
-| [[Plugin]] | Claude Code plugin install, Cursor support, permissions |
-| [[Contributing]] | PR guide, changelog discipline, screenshot rules |
-| [[Troubleshooting]] | Common errors and fixes |
+| [Installation](Installation.md) | Prerequisites, Kite MCP setup, bridge server, first run |
+| [Commands](Commands.md) | All commands, natural language triggers, examples |
+| [Portfolio Report](Portfolio-Report.md) | 5 tabs explained — Overview, Performance, Stage, Rebalancing, Stock Analyser |
+| [Stock Analyser](Stock-Analyser.md) | 13 sections, verdict banner, interactive chart, references tab |
+| [Scoring Rubric](Scoring-Rubric.md) | 0–100 scoring dimensions, action thresholds, override rules |
+| [Weinstein Stage Framework](Weinstein-Stage-Framework.md) | Stage 1/2/3/4 definitions, MA logic, classification algorithm |
+| [Architecture](Architecture.md) | How it works — data flow, token costs, repo structure, JSON schema |
+| [Data Sources](Data-Sources.md) | Whitelisted sources, MF benchmarks, cross-verification rules |
+| [Bridge Server](Bridge-Server.md) | Port 7891, endpoints, cache, queue watcher |
+| [Plugin](Plugin.md) | Claude Code plugin install, Cursor support, permissions |
+| [Contributing](Contributing.md) | PR guide, changelog discipline, screenshot rules |
+| [Troubleshooting](Troubleshooting.md) | Common errors and fixes |
 
 ---
 

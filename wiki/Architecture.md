@@ -212,6 +212,6 @@ kite-portfolio-ai/
 
 ## Related pages
 
-- [[Bridge-Server]] — full endpoint reference and configuration
-- [[Installation]] — how to set up the bridge server
-- [[Data-Sources]] — where the web research data comes from
+- [Bridge Server](Bridge-Server.md) — full endpoint reference and configuration
+- [Installation](Installation.md) — how to set up the bridge server
+- [Data Sources](Data-Sources.md) — where the web research data comes from

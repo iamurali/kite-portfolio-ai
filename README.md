@@ -128,24 +128,24 @@ On first run, Claude shows a Kite login link. Click it, authorise, then say `con
 
 ---
 
-## Wiki
+## Documentation
 
-Full documentation lives in the [GitHub Wiki](https://github.com/iamurali/kite-portfolio-ai/wiki):
+Full documentation is in the [`wiki/`](wiki/) folder — readable directly on GitHub:
 
 | Page | What's covered |
 |---|---|
-| [Installation](https://github.com/iamurali/kite-portfolio-ai/wiki/Installation) | MCP setup, bridge server, first run |
-| [Commands](https://github.com/iamurali/kite-portfolio-ai/wiki/Commands) | All commands, natural language triggers |
-| [Stock Analyser](https://github.com/iamurali/kite-portfolio-ai/wiki/Stock-Analyser) | 13 sections explained with screenshots |
-| [Portfolio Report](https://github.com/iamurali/kite-portfolio-ai/wiki/Portfolio-Report) | 5 tabs — Overview, Performance, Stage, Rebalancing |
-| [Scoring Rubric](https://github.com/iamurali/kite-portfolio-ai/wiki/Scoring-Rubric) | Dimension-by-dimension scoring guide |
-| [Weinstein Stage Framework](https://github.com/iamurali/kite-portfolio-ai/wiki/Weinstein-Stage-Framework) | Stage 1/2/3/4 definitions and classification logic |
-| [Architecture](https://github.com/iamurali/kite-portfolio-ai/wiki/Architecture) | Data flows, token costs, repo structure |
-| [Bridge Server](https://github.com/iamurali/kite-portfolio-ai/wiki/Bridge-Server) | Endpoints, cache, queue watcher |
-| [Data Sources](https://github.com/iamurali/kite-portfolio-ai/wiki/Data-Sources) | Trusted source whitelist, MF benchmarks |
-| [Plugin](https://github.com/iamurali/kite-portfolio-ai/wiki/Plugin) | Plugin install, Cursor support, permissions |
-| [Troubleshooting](https://github.com/iamurali/kite-portfolio-ai/wiki/Troubleshooting) | Common errors and fixes |
-| [Contributing](https://github.com/iamurali/kite-portfolio-ai/wiki/Contributing) | PR guide, changelog discipline |
+| [Installation](wiki/Installation.md) | MCP setup, bridge server, first run |
+| [Commands](wiki/Commands.md) | All commands, natural language triggers |
+| [Stock Analyser](wiki/Stock-Analyser.md) | 13 sections explained with screenshots |
+| [Portfolio Report](wiki/Portfolio-Report.md) | 5 tabs — Overview, Performance, Stage, Rebalancing |
+| [Scoring Rubric](wiki/Scoring-Rubric.md) | Dimension-by-dimension scoring guide |
+| [Weinstein Stage Framework](wiki/Weinstein-Stage-Framework.md) | Stage 1/2/3/4 definitions and classification logic |
+| [Architecture](wiki/Architecture.md) | Data flows, token costs, repo structure |
+| [Bridge Server](wiki/Bridge-Server.md) | Endpoints, cache, queue watcher |
+| [Data Sources](wiki/Data-Sources.md) | Trusted source whitelist, MF benchmarks |
+| [Plugin](wiki/Plugin.md) | Plugin install, Cursor support, permissions |
+| [Troubleshooting](wiki/Troubleshooting.md) | Common errors and fixes |
+| [Contributing](wiki/Contributing.md) | PR guide, changelog discipline |
 
 ---
 

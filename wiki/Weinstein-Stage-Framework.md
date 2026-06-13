@@ -156,6 +156,6 @@ if trading_days < 50:
 
 ## Related pages
 
-- [[Scoring-Rubric]] — how stage feeds into the 0-100 score
-- [[Stock-Analyser]] — where stage appears in the deep-dive report
-- [[Architecture]] — how candles are fetched and technicals computed
+- [Scoring Rubric](Scoring-Rubric.md) — how stage feeds into the 0-100 score
+- [Stock Analyser](Stock-Analyser.md) — where stage appears in the deep-dive report
+- [Architecture](Architecture.md) — how candles are fetched and technicals computed

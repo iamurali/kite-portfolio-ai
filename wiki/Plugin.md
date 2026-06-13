@@ -107,7 +107,7 @@ git clone https://github.com/iamurali/kite-portfolio-ai.git
 cp -r claude-skill ~/.claude/skills/kite-portfolio
 ```
 
-Then configure MCP and permissions manually — see [[Installation]].
+Then configure MCP and permissions manually — see [Installation](Installation.md).
 
 ---
 
@@ -125,5 +125,5 @@ Then configure MCP and permissions manually — see [[Installation]].
 
 ## Related pages
 
-- [[Installation]] — manual install steps
-- [[Commands]] — full command reference
+- [Installation](Installation.md) — manual install steps
+- [Commands](Commands.md) — full command reference

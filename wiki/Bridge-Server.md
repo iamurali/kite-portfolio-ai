@@ -140,6 +140,6 @@ const CLAUDE_BIN = '/opt/homebrew/bin/claude';  // path to claude CLI
 
 ## Related pages
 
-- [[Installation]] — how to install and start the bridge
-- [[Architecture]] — full endpoint reference in context
-- [[Troubleshooting]] — bridge-specific error fixes
+- [Installation](Installation.md) — how to install and start the bridge
+- [Architecture](Architecture.md) — full endpoint reference in context
+- [Troubleshooting](Troubleshooting.md) — bridge-specific error fixes

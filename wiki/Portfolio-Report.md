@@ -124,7 +124,7 @@ To switch between historical report dates, use the date selector dropdown in the
 
 ## Related pages
 
-- [[Stock-Analyser]] — deep-dive sections in detail
-- [[Scoring-Rubric]] — how the 0-100 score is computed
-- [[Weinstein-Stage-Framework]] — stage classification
-- [[Bridge-Server]] — how the report is served
+- [Stock Analyser](Stock-Analyser.md) — deep-dive sections in detail
+- [Scoring Rubric](Scoring-Rubric.md) — how the 0-100 score is computed
+- [Weinstein Stage Framework](Weinstein-Stage-Framework.md) — stage classification
+- [Bridge Server](Bridge-Server.md) — how the report is served
