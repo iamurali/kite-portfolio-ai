@@ -9,6 +9,19 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Unreleased]
 
 ### Added
+- **`report/report.html`** — Verdict banner rendered above sidebar on every stock load: BUY/HOLD/WATCH/SELL action badge (mapped from ADD/HOLD/TRIM/EXIT), SVG score ring, upside % / downside % cards from analyst target range, analyst count, key insight line, bull/bear case pills.
+- **`report/report.html`** — Interactive price chart tab (📈 Price Chart): Chart.js 4.4 loaded lazily from CDN, 1M/3M/6M/1Y/2Y range buttons, toggleable 20/50/200 DMA overlays, volume sub-chart, hover tooltip with exact price.
+- **`report/report.html`** — References tab (📎 References): sources grouped by section (earnings/concall/forensics/sector/competitive/technical), each with source name, note, and "Open ↗" link to the original URL.
+- **`report/report.html`** — QoQ columns in earnings table: QoQ Rev% and QoQ PAT% added alongside existing YoY columns; computed from sequential quarter data in Step E patch script.
+- **`report/report.html`** — Rich sector section: market definition callout, TAM/India share/CAGR/cycle stats row, cycle rationale, structured positive/negative triggers with timeline + impact color-coding, company position paragraph, watchlist metrics pills.
+- **`claude-skill/SKILL.md`** — Step D rewrites Module 3 primary path: uses Agent tool (subagent) directly instead of `analyse.mjs` subprocess (which times out). Embeds complete v3.0 schema template in the subagent prompt including new `sector`, `verdict` (with targets/cases as objects), and `references[]` fields.
+- **`claude-skill/SKILL.md`** — Step E: post-subagent Python patch script injects 2Y candle OHLCV data and computes QoQ per quarter into the written JSON automatically.
+- **`portfolio-bridge/analyse.mjs`** — V3 local runner replacing all Workflow/subagent orchestration for Module 3. Single Node.js process: resolves ticker via Kite MCP, fetches candles via Kite MCP, computes technicals locally (zero tokens), makes **one** Claude call with embedded web searches that outputs the exact `report.html` JSON schema (`earnings`, `concall.sections.*`, `forensics`, `competitive`, `management_integrity`, `sector`, `triggers`, `verdict`, `score.dimensions`). Validates 14 required field paths after write. Token cost ~15-25K vs ~150K for V2.
+- **`claude-skill/stock-analyser-v2.js`** — V2 Claude Workflow script (kept for reference — no longer active). Six deterministic phases: Resolve → Fetch → Technicals → Score → Deep Analysis → Assemble. Each phase has a JSON Schema eval gate (TickerSchema, FetchSchema, ScoreSchema, SectionSchema) that validates output before proceeding. Up to 2 retries on fetch failures. Per-section placeholder fallback if ≤3 of 8 sections fail — report always completes. `pipeline()` for all 8 analysis sections runs them concurrently (wall-clock ~2-3 min vs ~5 min sequential). Stage score computed in pure JS (zero tokens, deterministic). Progress visible in `/workflows`.
+
+### Changed
+- **`claude-skill/SKILL.md`** — Module 3 invocation updated: `/kite-portfolio:stock <TICKER>` now runs `node portfolio-bridge/analyse.mjs <TICKER>` directly via Bash. No Workflow tool, no subagents.
+- **`portfolio-bridge/server.js`** — Queue watcher `spawnClaudeAnalysis()` rewritten: spawns `node analyse.mjs <TICKER>` instead of `claude -p /kite-portfolio:stock`.
 - **`portfolio-bridge/server.js`** — `GET /stock/:ticker` endpoint reads from `~/.portfolio/stock-reports/<TICKER>/latest.json` and serves structured JSON to Tab 5. Backwards-compatible with legacy `html_fragment` cache.
 - **`portfolio-bridge/server.js`** — `STOCK_REPORTS_DIR` (`~/.portfolio/stock-reports/`) created on startup. Directory ensured alongside existing cache/results/queue directories.
 - **`docs/sample-stock-data.json`** — Complete ZAGGLE example for Module 3 JSON schema (schema v3.0). Reference file for all 12 top-level keys.

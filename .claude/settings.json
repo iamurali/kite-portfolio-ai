@@ -4,5 +4,24 @@
             "command": "npx",
             "args": ["mcp-remote", "https://mcp.kite.trade/mcp"]
         }
+    },
+    "permissions": {
+        "allow": [
+            "Bash(mkdir*)",
+            "Bash(ls*)",
+            "Bash(mv ~/.portfolio/*)",
+            "Bash(cp ~/.portfolio/*)",
+            "Bash(ln -sf*)",
+            "Bash(rm ~/.portfolio/*)",
+            "Bash(node *)",
+            "Bash(python3 *)",
+            "Bash(curl *)",
+            "Bash(grep *)",
+            "Bash(cat *)",
+            "Write(~/.portfolio/*)"
+        ],
+        "additionalDirectories": [
+            "~/.portfolio"
+        ]
     }
 }
