@@ -7,12 +7,20 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/iamurali/kite-portfolio-ai/stargazers"><img src="https://img.shields.io/github/stars/iamurali/kite-portfolio-ai?style=social" alt="GitHub Stars"/></a>
+</p>
+
+<p align="center">
   <a href="https://claude.ai/code"><img src="https://img.shields.io/badge/Claude%20Code-Skill-6366f1?logo=anthropic&logoColor=white" alt="Claude Code Skill"/></a>
   <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-Kite%20Compatible-22c55e?logo=zerodha&logoColor=white" alt="MCP Compatible"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-f59e0b" alt="MIT License"/></a>
   <img src="https://img.shields.io/badge/Node.js-%E2%89%A518-339933?logo=node.js&logoColor=white" alt="Node.js ≥18"/>
   <img src="https://img.shields.io/badge/India%20Markets-NSE%20%2F%20BSE-1d4ed8" alt="NSE / BSE"/>
   <img src="https://img.shields.io/badge/Zerodha%20Kite-Live%20Data-ef4444?logo=zerodha" alt="Zerodha Kite"/>
+</p>
+
+<p align="center">
+  If this is useful, a ⭐ helps others find it.
 </p>
 
 ---
