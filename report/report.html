@@ -284,6 +284,8 @@ tr:hover td{background:var(--surface2)}
 .target-higher{color:var(--green);font-weight:600}
 .target-lower{color:var(--yellow);font-weight:600}
 .target-same{color:var(--muted)}
+.chart-range-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s}
+.chart-range-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 /* Responsive */
 @media(max-width:800px){
   .stage-layout{grid-template-columns:1fr}
@@ -483,6 +485,8 @@ tr:hover td{background:var(--surface2)}
       <div class="spinner" style="margin:0 auto 12px"></div>
       Analysing…
     </div>
+    <!-- Verdict banner (populated when stock data loads) -->
+    <div id="verdict-banner" style="margin-bottom:12px"></div>
     <!-- Stock analyser panel: left sidebar nav + right content area -->
     <div id="analyser-detail-panel" style="display:none;flex-direction:row;gap:0;min-height:600px">
       <div class="stock-nav" id="stock-nav-sidebar">
@@ -497,6 +501,8 @@ tr:hover td{background:var(--surface2)}
         <button class="stock-nav-btn" onclick="showStockSection('moat',this)">Moat &amp; Peers</button>
         <button class="stock-nav-btn" onclick="showStockSection('sector',this)">Sector</button>
         <button class="stock-nav-btn" onclick="showStockSection('verdict',this)">Verdict + Score</button>
+        <button class="stock-nav-btn" onclick="showStockSection('chart',this)">📈 Price Chart</button>
+        <button class="stock-nav-btn" onclick="showStockSection('references',this)">📎 References</button>
       </div>
       <div class="stock-content" id="stock-content-area"></div>
     </div>
@@ -1434,9 +1440,87 @@ function showStockSection(id, btn) {
 
 function renderStockAnalysis(data) {
   _stockData = data;
+  // Render verdict banner above sidebar
+  const banner = document.getElementById('verdict-banner');
+  if (banner) banner.innerHTML = buildVerdictBanner(data);
   // reset to summary
   document.querySelectorAll('.stock-nav-btn').forEach((b,i) => b.classList.toggle('active', i===0));
   renderStockSection('summary', data);
+}
+
+function buildVerdictBanner(d) {
+  const sc = d.score || {};
+  const v = d.verdict || {};
+  const p = d.price || {};
+  const ap = (d.concall || {}).analyst_pulse || {};
+  const total = sc.total || 0;
+  const action = sc.action || '—';
+
+  // Map action to BUY/HOLD/SELL
+  const actionMap = { 'STRONG ADD': 'BUY', 'ADD': 'BUY', 'STRONG HOLD': 'HOLD', 'HOLD': 'HOLD', 'WATCH': 'WATCH', 'TRIM': 'SELL', 'EXIT': 'SELL' };
+  const displayAction = actionMap[action] || action;
+  const actionColors = { 'BUY': ['#14532d','#4ade80','var(--green)'], 'HOLD': ['#1e3a5f','#93c5fd','var(--blue)'], 'WATCH': ['#1c1c40','#a78bfa','var(--purple)'], 'SELL': ['#450a0a','#fca5a5','var(--red)'] };
+  const [abg, afg, borderCol] = actionColors[displayAction] || ['#1e293b','#e2e8f0','var(--border)'];
+
+  const curPrice = p.last_price;
+  const targetHigh = ap.target_range_high || v.target_high;
+  const targetLow = ap.target_range_low || v.target_low || p.low_1y;
+  const upsidePct = (targetHigh && curPrice) ? ((targetHigh - curPrice) / curPrice * 100).toFixed(1) : null;
+  const downPct = (targetLow && curPrice) ? ((targetLow - curPrice) / curPrice * 100).toFixed(1) : null;
+  const arcLen = (total / 100) * 213.6;
+  const arcColor = total >= 70 ? 'var(--green)' : total >= 40 ? 'var(--yellow)' : 'var(--red)';
+
+  const _bullRaw = typeof v.bull_case === 'object' && v.bull_case !== null
+    ? (v.bull_case.assumptions || []).slice(0,2).join(' · ') || ''
+    : (v.bull_case || '');
+  const _bearRaw = typeof v.bear_case === 'object' && v.bear_case !== null
+    ? (v.bear_case.assumptions || []).slice(0,2).join(' · ') || ''
+    : (v.bear_case || '');
+  const bullText = _bullRaw.length > 160 ? _bullRaw.slice(0,160)+'…' : _bullRaw;
+  const bearText = _bearRaw.length > 160 ? _bearRaw.slice(0,160)+'…' : _bearRaw;
+
+  return `<div style="background:var(--surface);border:1px solid ${borderCol};border-left:4px solid ${borderCol};border-radius:12px;padding:16px 20px;display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px">
+      <svg viewBox="0 0 80 80" width="70" height="70">
+        <circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="8"/>
+        <circle cx="40" cy="40" r="34" fill="none" stroke="${arcColor}" stroke-width="8"
+          stroke-dasharray="${arcLen.toFixed(1)} 213.6" transform="rotate(-90 40 40)" stroke-linecap="round"/>
+        <text x="40" y="37" text-anchor="middle" font-size="18" font-weight="700" fill="var(--text)">${total}</text>
+        <text x="40" y="50" text-anchor="middle" font-size="9" fill="var(--muted)">/ 100</text>
+      </svg>
+      <span style="background:${abg};color:${afg};font-size:14px;font-weight:800;padding:4px 14px;border-radius:6px;letter-spacing:.05em">${displayAction}</span>
+    </div>
+    <div style="flex:1;min-width:200px">
+      ${v.key_insight ? `<div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:10px">${esc(v.key_insight)}</div>` : ''}
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        ${upsidePct !== null ? `<div style="background:#0a1f0f;border:1px solid var(--green);border-radius:8px;padding:8px 14px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:2px">Upside Target</div>
+          <div style="font-size:18px;font-weight:800;color:var(--green)">▲ ${upsidePct}%</div>
+          ${targetHigh ? `<div style="font-size:10px;color:var(--muted)">₹${targetHigh}</div>` : ''}
+        </div>` : ''}
+        ${downPct !== null ? `<div style="background:#1f0a0a;border:1px solid var(--red);border-radius:8px;padding:8px 14px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:2px">Downside Risk</div>
+          <div style="font-size:18px;font-weight:800;color:var(--red)">▼ ${Math.abs(downPct)}%</div>
+          ${targetLow ? `<div style="font-size:10px;color:var(--muted)">₹${targetLow}</div>` : ''}
+        </div>` : ''}
+        ${ap.analyst_count ? `<div style="background:var(--surface2);border-radius:8px;padding:8px 14px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:2px">Analysts</div>
+          <div style="font-size:18px;font-weight:800;color:var(--text)">${ap.analyst_count}</div>
+          <div style="font-size:10px;color:var(--muted)">covering</div>
+        </div>` : ''}
+      </div>
+      ${(bullText || bearText) ? `<div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${bullText ? `<div style="flex:1;min-width:160px;background:#0a1f0f;border-top:2px solid var(--green);border-radius:6px;padding:8px 10px">
+          <div style="font-size:10px;font-weight:700;color:var(--green);margin-bottom:4px">BULL CASE</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">${esc(bullText)}</div>
+        </div>` : ''}
+        ${bearText ? `<div style="flex:1;min-width:160px;background:#1f0a0a;border-top:2px solid var(--red);border-radius:6px;padding:8px 10px">
+          <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px">BEAR CASE</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">${esc(bearText)}</div>
+        </div>` : ''}
+      </div>` : ''}
+    </div>
+  </div>`;
 }
 
 function renderStockSection(id, d) {
@@ -1445,7 +1529,8 @@ function renderStockSection(id, d) {
     summary: renderSummary, strategic: renderStrategic, guidance: renderGuidance,
     risks: renderRisks, qa: renderQA, triggers: renderTriggers,
     integrity: renderIntegrity, forensics: renderForensics, moat: renderMoat,
-    sector: renderSector, verdict: renderVerdict
+    sector: renderSector, verdict: renderVerdict,
+    chart: renderChart, references: renderReferences
   };
   if (fns[id]) area.innerHTML = fns[id](d);
 }
@@ -1491,14 +1576,23 @@ function companyHeader(d) {
 function renderSummary(d) {
   const e = d.earnings || {}; const qs = e.quarters || [];
   // Earnings table with Est/Act/Beat-Miss
+  const pctCell = (val) => {
+    if (val == null) return '<td style="text-align:right;color:var(--muted)">—</td>';
+    const color = val >= 0 ? 'var(--green)' : 'var(--red)';
+    return `<td style="text-align:right;font-weight:600;color:${color}">${fmtPct(val,true)}</td>`;
+  };
   const earningRows = qs.map(q => `<tr>
     <td style="font-weight:600">${esc(q.label)}</td>
     <td style="text-align:right">${fmtCr(q.revenue_est_cr)}</td>
     <td style="text-align:right">${fmtCr(q.revenue_cr)}</td>
     <td style="text-align:center">${beatBadge(q.beat_miss_rev)}</td>
+    ${pctCell(q.qoq_rev_pct)}
+    ${pctCell(q.yoy_rev_pct)}
     <td style="text-align:right">${fmtCr(q.pat_est_cr)}</td>
     <td style="text-align:right">${fmtCr(q.pat_cr)}</td>
     <td style="text-align:center">${beatBadge(q.beat_miss_pat)}</td>
+    ${pctCell(q.qoq_pat_pct)}
+    ${pctCell(q.yoy_pat_pct)}
     <td style="text-align:right">${q.eps!=null?'₹'+Number(q.eps).toFixed(2):'—'}</td>
     <td style="text-align:right;color:${(q.market_reaction_pct||0)>=0?'var(--green)':'var(--red)'};font-weight:600">${fmtPct(q.market_reaction_pct,true)}</td>
     <td style="text-align:center">${sentBadge(q.analyst_sentiment)}</td>
@@ -1507,7 +1601,7 @@ function renderSummary(d) {
   const sectorRow = e.sector_rev_growth_avg != null ? `
     <tr style="background:var(--surface2)">
       <td colspan="3" style="font-size:11px;color:var(--muted)">Sector avg revenue growth</td>
-      <td colspan="7" style="font-size:12px;color:var(--blue)">${fmtPct(e.sector_rev_growth_avg,true)} YoY (vs company trend)</td>
+      <td colspan="11" style="font-size:12px;color:var(--blue)">${fmtPct(e.sector_rev_growth_avg,true)} YoY (vs company trend)</td>
     </tr>` : '';
 
   const attList = (d.concall || {}).attendees || [];
@@ -1524,9 +1618,13 @@ function renderSummary(d) {
           <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">Rev Est</th>
           <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">Rev Act</th>
           <th style="padding:8px 10px;text-align:center;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">Rev B/M</th>
+          <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">QoQ Rev%</th>
+          <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">YoY Rev%</th>
           <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">PAT Est</th>
           <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">PAT Act</th>
           <th style="padding:8px 10px;text-align:center;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">PAT B/M</th>
+          <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">QoQ PAT%</th>
+          <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">YoY PAT%</th>
           <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">EPS</th>
           <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">Mkt Rxn</th>
           <th style="padding:8px 10px;text-align:center;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border)">Sentiment</th>
@@ -1825,13 +1923,36 @@ function renderMoat(d) {
 
 function renderSector(d) {
   const s = d.sector || {};
+  const pos = s.positive_triggers || s.bull_triggers || s.tailwinds || [];
+  const neg = s.negative_triggers || s.bear_triggers || s.headwinds || [];
   const drivers = s.growth_drivers || [];
-  const risks = s.risks || [];
-  const bulls = s.bull_triggers || []; const bears = s.bear_triggers || [];
+  const posItems = Array.isArray(pos) ? pos.map(p => typeof p === 'string' ? { trigger: p, timeline: '—', impact: 'MEDIUM' } : p) : [];
+  const negItems = Array.isArray(neg) ? neg.map(p => typeof p === 'string' ? { trigger: p, timeline: '—', impact: 'MEDIUM' } : p) : [];
+  const impactColor = i => i === 'HIGH' ? 'var(--red)' : i === 'MEDIUM' ? 'var(--yellow)' : 'var(--muted)';
+
+  const marketStats = [
+    ['Sector', s.name || '—'],
+    ['TAM (USD Bn)', s.tam_usd_bn != null ? '$' + s.tam_usd_bn + 'B' : '—'],
+    ['India Share', s.india_share_pct != null ? s.india_share_pct + '%' : '—'],
+    ['CAGR', s.cagr_pct != null ? s.cagr_pct + '%' : '—'],
+    ['Cycle', s.cycle || s.cycle_position || '—'],
+  ].filter(([,v]) => v !== '—');
+
   return companyHeader(d) + `
-    <div style="font-size:16px;font-weight:700;margin-bottom:8px">Sector Intelligence</div>
-    ${s.overview?`<div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">${esc(s.overview)}</div>`:''}
-    ${drivers.length?`<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">Growth Drivers</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px">Sector Intelligence</div>
+
+    ${s.definition || s.overview ? `<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px;padding:12px 16px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--accent)">${esc(s.definition || s.overview)}</div>` : ''}
+
+    ${marketStats.length ? `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+      ${marketStats.map(([k,v]) => `<div style="background:var(--surface2);border-radius:8px;padding:10px 14px;min-width:110px">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">${k}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px">${esc(String(v))}</div>
+      </div>`).join('')}
+    </div>` : ''}
+
+    ${s.cycle_rationale ? `<div style="font-size:12px;color:var(--muted);margin-bottom:16px;font-style:italic;padding:8px 12px;background:var(--surface2);border-radius:6px">📍 Cycle: ${esc(s.cycle_rationale)}</div>` : ''}
+
+    ${drivers.length ? `<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">Growth Drivers</div>
     <div style="overflow-x:auto;margin-bottom:20px">
       <table style="width:100%;border-collapse:collapse;font-size:12px">
         <thead><tr style="background:var(--surface2)">
@@ -1840,23 +1961,50 @@ function renderSector(d) {
         <tbody>${drivers.map(dr=>`<tr style="border-bottom:1px solid var(--border)">
           <td style="padding:7px 10px;color:var(--text);font-weight:500">${esc(dr.driver||'')}</td>
           <td style="padding:7px 10px;color:var(--muted)">${esc(dr.type||'')}</td>
-          <td style="padding:7px 10px;color:var(--text);font-weight:600">${esc(dr.impact||'')}</td>
+          <td style="padding:7px 10px;font-weight:700;color:${impactColor(dr.impact)}">${esc(dr.impact||'')}</td>
           <td style="padding:7px 10px;color:var(--muted)">${esc(dr.timeline||'')}</td>
           <td style="padding:7px 10px;color:var(--muted)">${esc(dr.beneficiary||'')}</td>
         </tr>`).join('')}</tbody>
       </table>
-    </div>`:''}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    </div>` : ''}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">Bull Triggers</div>
-        ${bulls.map(b=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text)"><span style="color:var(--green);margin-right:6px">+</span>${esc(b)}</div>`).join('')}
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:6px">✅ Positive Triggers <span style="font-size:10px;color:var(--muted);font-weight:400">(${posItems.length})</span></div>
+        ${posItems.length ? posItems.map(t => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <div style="display:flex;align-items:flex-start;gap:8px">
+            <span style="color:var(--green);flex-shrink:0">▲</span>
+            <div style="flex:1">
+              <div style="color:var(--text)">${esc(t.trigger || t)}</div>
+              ${t.timeline && t.timeline !== '—' ? `<div style="font-size:10px;color:var(--muted);margin-top:2px">${esc(t.timeline)}${t.impact ? ` · <span style="color:${impactColor(t.impact)}">${esc(t.impact)}</span>` : ''}</div>` : ''}
+            </div>
+          </div>
+        </div>`).join('') : '<div style="color:var(--muted);font-size:12px">No positive triggers found.</div>'}
       </div>
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">Bear Triggers</div>
-        ${bears.map(b=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text)"><span style="color:var(--red);margin-right:6px">−</span>${esc(b)}</div>`).join('')}
+        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:10px;display:flex;align-items:center;gap:6px">⚠️ Negative Triggers <span style="font-size:10px;color:var(--muted);font-weight:400">(${negItems.length})</span></div>
+        ${negItems.length ? negItems.map(t => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <div style="display:flex;align-items:flex-start;gap:8px">
+            <span style="color:var(--red);flex-shrink:0">▼</span>
+            <div style="flex:1">
+              <div style="color:var(--text)">${esc(t.trigger || t)}</div>
+              ${t.timeline && t.timeline !== '—' ? `<div style="font-size:10px;color:var(--muted);margin-top:2px">${esc(t.timeline)}${t.impact ? ` · <span style="color:${impactColor(t.impact)}">${esc(t.impact)}</span>` : ''}</div>` : ''}
+            </div>
+          </div>
+        </div>`).join('') : '<div style="color:var(--muted);font-size:12px">No negative triggers found.</div>'}
       </div>
     </div>
-    ${s.sector_attractiveness?`<div style="margin-top:16px;font-size:12px;font-weight:700;color:var(--blue)">${esc(s.sector_attractiveness)}</div>`:''}`;
+
+    ${s.company_position ? `<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">Company's Sector Position</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.7;padding:12px;background:var(--surface2);border-radius:8px;margin-bottom:16px">${esc(s.company_position)}</div>` : ''}
+
+    ${s.watchlist_metrics && s.watchlist_metrics.length ? `<div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px">Sector Metrics to Watch</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${s.watchlist_metrics.map(m => `<span style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text)">${esc(m)}</span>`).join('')}
+    </div>` : ''}
+
+    ${s.sector_attractiveness ? `<div style="margin-top:16px;font-size:12px;font-weight:700;color:var(--blue)">${esc(s.sector_attractiveness)}</div>` : ''}
+    ${!s.definition && !s.overview && !posItems.length && !negItems.length ? '<div style="color:var(--muted);font-size:13px">No sector data available. Re-run analysis to populate sector intelligence.</div>' : ''}`;
 }
 
 function renderVerdict(d) {
@@ -1917,6 +2065,232 @@ function renderVerdict(d) {
         </div>`).join('')}
     </div>
     ${v.action_rationale?`<div style="margin-top:16px;font-size:12px;color:var(--muted);font-style:italic">${esc(v.action_rationale)}</div>`:''}`;
+}
+
+function renderChart(d) {
+  const candles = d.candles || [];
+  const t = d.technical || {};
+  const p = d.price || {};
+  if (!candles.length) {
+    return companyHeader(d) + '<div style="color:var(--muted);padding:20px">No candle data available. Re-run analysis to include chart data.</div>';
+  }
+
+  const cid = 'priceChart_' + ((d.meta||{}).ticker||'x').replace(/[^a-zA-Z0-9]/g,'_');
+  const html = companyHeader(d) + `
+    <div style="margin-bottom:12px">
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px">Price Chart</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="chart-range-btns">
+        ${['1M','3M','6M','1Y','2Y'].map((r)=>`<button class="chart-range-btn${r==='1Y'?' active':''}" onclick="setChartRange('${r}',this,'${cid}')">${r}</button>`).join('')}
+        <span style="margin-left:8px;font-size:11px;color:var(--muted);align-self:center">Hover to see price</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px"><input type="checkbox" id="show20ma" checked onchange="updateChartMAs('${cid}')"> 20 DMA</label>
+        <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px"><input type="checkbox" id="show50ma" checked onchange="updateChartMAs('${cid}')"> 50 DMA</label>
+        <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px"><input type="checkbox" id="show200ma" checked onchange="updateChartMAs('${cid}')"> 200 DMA</label>
+      </div>
+      <div style="position:relative;background:var(--surface2);border-radius:8px;padding:10px">
+        <canvas id="${cid}" style="width:100%;height:380px"></canvas>
+      </div>
+      <div id="range-info-${cid}" style="margin-top:8px;font-size:12px;color:var(--muted);min-height:20px"></div>
+      <div style="margin-top:16px">
+        <canvas id="${cid}_vol" style="width:100%;height:80px"></canvas>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:12px">
+      ${[['Current',p.last_price!=null?'₹'+Number(p.last_price).toFixed(2):'—','var(--text)'],
+         ['52W High',p.high_1y!=null?'₹'+p.high_1y:'—','var(--text)'],
+         ['52W Low',p.low_1y!=null?'₹'+p.low_1y:'—','var(--text)'],
+         ['From High',p.pct_from_high!=null?(p.pct_from_high>0?'+':'')+p.pct_from_high+'%':'—',p.pct_from_high>=0?'var(--green)':'var(--red)'],
+         ['MA50',t.ma50?'₹'+t.ma50:'—','var(--blue)'],
+         ['MA200',t.ma200?'₹'+t.ma200:'—','var(--purple)'],
+         ['RSI14',t.rsi_14||'—',t.rsi_14>70?'var(--red)':t.rsi_14<30?'var(--green)':'var(--yellow)'],
+         ['Stage',t.stage||'—',t.stage&&String(t.stage).includes('2')?'var(--green)':t.stage&&String(t.stage).includes('4')?'var(--red)':'var(--yellow)']
+        ].map(([k,v,c])=>`<div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">${k}</div>
+          <div style="font-size:14px;font-weight:700;color:${c};margin-top:4px">${v}</div>
+        </div>`).join('')}
+    </div>`;
+
+  // Defer chart init until after DOM renders
+  setTimeout(() => initPriceChart(d, cid), 80);
+  return html;
+}
+
+// Chart.js lazy loader
+let _chartJsLoaded = false;
+function loadChartJs(cb) {
+  if (window.Chart) { cb(); return; }
+  if (_chartJsLoaded) { const t = setInterval(()=>{ if(window.Chart){clearInterval(t);cb();} },50); return; }
+  _chartJsLoaded = true;
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  s.onload = cb;
+  document.head.appendChild(s);
+}
+
+// Compute moving average
+function computeMA(closes, period) {
+  return closes.map((_, i) => {
+    if (i < period - 1) return null;
+    const slice = closes.slice(i - period + 1, i + 1);
+    return slice.reduce((a, b) => a + b, 0) / period;
+  });
+}
+
+// Global chart instances keyed by cid
+const _charts = {};
+
+function initPriceChart(d, cid) {
+  loadChartJs(() => {
+    const candles = d.candles || [];
+    if (!candles.length) return;
+    const allDates = candles.map(c => c.date ? c.date.slice(0,10) : '');
+    const allCloses = candles.map(c => c.close);
+    const allVolumes = candles.map(c => c.volume);
+    const ma20 = computeMA(allCloses, 20);
+    const ma50 = computeMA(allCloses, 50);
+    const ma200 = computeMA(allCloses, 200);
+
+    // Store for range switching
+    _charts[cid] = { d, cid, allDates, allCloses, allVolumes, ma20, ma50, ma200, instance: null, volInstance: null };
+    drawChartRange(cid, '1Y');
+  });
+}
+
+function drawChartRange(cid, range) {
+  const state = _charts[cid];
+  if (!state) return;
+  const { allDates, allCloses, allVolumes, ma20, ma50, ma200 } = state;
+  const n = allDates.length;
+  let start = 0;
+  if (range === '1M') start = Math.max(0, n - 21);
+  else if (range === '3M') start = Math.max(0, n - 63);
+  else if (range === '6M') start = Math.max(0, n - 126);
+  else if (range === '1Y') start = Math.max(0, n - 252);
+  else start = 0; // 2Y = all
+
+  const dates = allDates.slice(start);
+  const closes = allCloses.slice(start);
+  const volumes = allVolumes.slice(start);
+  const s20 = ma20.slice(start);
+  const s50 = ma50.slice(start);
+  const s200 = ma200.slice(start);
+
+  const show20 = document.getElementById('show20ma') ? document.getElementById('show20ma').checked : true;
+  const show50 = document.getElementById('show50ma') ? document.getElementById('show50ma').checked : true;
+  const show200 = document.getElementById('show200ma') ? document.getElementById('show200ma').checked : true;
+
+  const ctx = document.getElementById(cid) ? document.getElementById(cid).getContext('2d') : null;
+  if (!ctx) return;
+  if (state.instance) { state.instance.destroy(); }
+
+  const priceColor = '#6366f1';
+  state.instance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [
+        { label: 'Price', data: closes, borderColor: priceColor, backgroundColor: 'rgba(99,102,241,0.08)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.1, order: 0 },
+        { label: '20 DMA', data: show20 ? s20 : [], borderColor: '#f59e0b', borderWidth: 1, pointRadius: 0, fill: false, tension: 0.3, borderDash: [], hidden: !show20, order: 1 },
+        { label: '50 DMA', data: show50 ? s50 : [], borderColor: '#60a5fa', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.3, hidden: !show50, order: 2 },
+        { label: '200 DMA', data: show200 ? s200 : [], borderColor: '#a78bfa', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.3, hidden: !show200, order: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#8892b0', font: { size: 11 }, boxWidth: 20 } },
+        tooltip: {
+          backgroundColor: '#1a1d27', titleColor: '#e2e8f0', bodyColor: '#8892b0',
+          borderColor: '#2e3250', borderWidth: 1,
+          callbacks: {
+            label: ctx => ctx.dataset.label + ': ₹' + (ctx.raw != null ? Number(ctx.raw).toFixed(2) : '—')
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#8892b0', maxTicksLimit: 8, font: { size: 10 } }, grid: { color: '#2e3250' } },
+        y: { ticks: { color: '#8892b0', callback: v => '₹' + Number(v).toFixed(0), font: { size: 10 } }, grid: { color: '#2e3250' }, position: 'right' }
+      },
+      onHover: (e, els, chart) => {
+        const infoEl = document.getElementById('range-info-' + cid);
+        if (!infoEl) return;
+        if (els.length && chart.data.labels) {
+          const i = els[0].index;
+          const price = chart.data.datasets[0].data[i];
+          const label = chart.data.labels[i];
+          infoEl.innerHTML = `<strong style="color:var(--text)">${label}</strong> — ₹${price!=null?Number(price).toFixed(2):'—'}`;
+        }
+      }
+    }
+  });
+  state.currentRange = range;
+
+  // Volume chart
+  const vEl = document.getElementById(cid + '_vol');
+  const vctx = vEl ? vEl.getContext('2d') : null;
+  if (vctx) {
+    if (state.volInstance) state.volInstance.destroy();
+    state.volInstance = new Chart(vctx, {
+      type: 'bar',
+      data: { labels: dates, datasets: [{ label: 'Volume', data: volumes, backgroundColor: 'rgba(99,102,241,0.4)', borderWidth: 0 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1a1d27', titleColor: '#e2e8f0', bodyColor: '#8892b0', borderColor: '#2e3250', borderWidth: 1, callbacks: { label: c => 'Vol: ' + Number(c.raw).toLocaleString('en-IN') } } },
+        scales: {
+          x: { display: false },
+          y: { ticks: { color: '#8892b0', font: { size: 9 }, callback: v => v > 1e6 ? (v/1e6).toFixed(1)+'M' : v > 1e3 ? (v/1e3).toFixed(0)+'K' : v }, grid: { color: '#2e3250' }, position: 'right' }
+        }
+      }
+    });
+  }
+}
+
+function setChartRange(range, btn, cid) {
+  document.querySelectorAll('.chart-range-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  drawChartRange(cid, range);
+}
+
+function updateChartMAs(cid) {
+  const state = _charts[cid];
+  if (!state) return;
+  drawChartRange(cid, state.currentRange || '1Y');
+}
+
+function renderReferences(d) {
+  const refs = d.references || [];
+  const sectionIcons = { earnings: '📊', concall: '🎙️', forensics: '🔬', sector: '🏭', competitive: '⚔️', management: '👔', technical: '📈', general: '🔗' };
+  // Group by section
+  const grouped = {};
+  refs.forEach(r => {
+    const sec = r.section || 'general';
+    if (!grouped[sec]) grouped[sec] = [];
+    grouped[sec].push(r);
+  });
+  const sectionOrder = ['earnings','concall','forensics','sector','competitive','management','technical','general'];
+
+  return companyHeader(d) + `
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px">Data Sources &amp; References</div>
+    ${refs.length === 0 ? '<div style="color:var(--muted);font-size:13px">No references recorded. Re-run analysis to capture source URLs.</div>' : ''}
+    ${sectionOrder.filter(s => grouped[s]).map(sec => `
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <span>${sectionIcons[sec]||'🔗'}</span>
+          <span>${sec.charAt(0).toUpperCase()+sec.slice(1)}</span>
+        </div>
+        ${grouped[sec].map(r => `
+          <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:8px;border-left:3px solid var(--border)">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">${esc(r.source||'Unknown Source')}</div>
+                ${r.note ? `<div style="font-size:11px;color:var(--muted)">${esc(r.note)}</div>` : ''}
+              </div>
+              ${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--accent);white-space:nowrap;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:3px 8px">Open ↗</a>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>`).join('')}`;
 }
 
 async function analyseStock(forceRefresh) {
