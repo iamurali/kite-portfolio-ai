@@ -1,0 +1,44 @@
+evals:
+  - name: menu
+    prompt: "/stock-researcher"
+    expected_skill: "stock-researcher"
+
+  - name: full-portfolio-natural
+    prompt: "analyse my portfolio"
+    expected_skill: "stock-researcher:full"
+
+  - name: full-portfolio-command
+    prompt: "/stock-researcher:full"
+    expected_skill: "stock-researcher:full"
+
+  - name: performance-command
+    prompt: "/stock-researcher:performance"
+    expected_skill: "stock-researcher:performance"
+
+  - name: performance-natural
+    prompt: "how does my portfolio compare to nifty"
+    expected_skill: "stock-researcher:performance"
+
+  - name: stage-command
+    prompt: "/stock-researcher:stage"
+    expected_skill: "stock-researcher:stage"
+
+  - name: stage-natural
+    prompt: "which stocks should I trim"
+    expected_skill: "stock-researcher:stage"
+
+  - name: stock-command
+    prompt: "/stock-researcher:stock KMEW"
+    expected_skill: "stock-researcher:stock"
+
+  - name: stock-natural-deepdive
+    prompt: "deep dive on NETWEB"
+    expected_skill: "stock-researcher:stock"
+
+  - name: stock-natural-research
+    prompt: "research TATAMOTORS fundamentals"
+    expected_skill: "stock-researcher:stock"
+
+  - name: stock-natural-analyse
+    prompt: "analyse HDFCBANK"
+    expected_skill: "stock-researcher:stock"

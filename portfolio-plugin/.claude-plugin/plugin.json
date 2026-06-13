@@ -1,0 +1,9 @@
+{
+  "name": "stock-researcher",
+  "version": "1.0.0",
+  "description": "Institutional-grade Zerodha Kite portfolio analyser and stock deep-dive tool. Benchmark comparison, Weinstein stage classification, 0-100 fundamental scoring, and on-demand 8-section stock research (earnings, concall, forensics, competitive, sector, triggers, management integrity, verdict). Outputs compact JSON rendered by a dark-mode HTML report. Requires a Zerodha Kite account.",
+  "skills": "./skills/",
+  "author": { "name": "Murali K" },
+  "homepage": "https://github.com/kmurali1/kite-portfolio-ai",
+  "license": "MIT"
+}
